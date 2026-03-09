@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Info, X, Users, Wallet, ShoppingBag } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
 
 type ToastType = 'success' | 'error' | 'info' | 'member' | 'payment' | 'transaction';
 
@@ -12,8 +13,11 @@ interface Toast {
 }
 
 interface NotificationContextType {
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type: ToastType, voiceText?: string) => void;
   playSound: (type: ToastType) => void;
+  speak: (text: string) => void;
+  confirm: (message: string, title?: string, type?: 'confirm' | 'delete') => Promise<boolean>;
+  showModalAlert: (message: string, title?: string) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -34,6 +38,20 @@ const SOUNDS = {
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  // Modal State
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'confirm' | 'alert' | 'delete';
+    resolve?: (value: boolean) => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'confirm'
+  });
 
   const playSound = (type: ToastType) => {
     let soundUrl = '';
@@ -49,10 +67,30 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  const showToast = (message: string, type: ToastType) => {
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'id-ID';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.1;
+    utterance.volume = 1.0;
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const showToast = (message: string, type: ToastType, voiceText?: string) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-    playSound(type);
+    
+    if (voiceText) {
+      speak(voiceText);
+    } else {
+      playSound(type);
+    }
 
     setTimeout(() => {
       removeToast(id);
@@ -63,8 +101,39 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const confirm = (message: string, title: string = 'Konfirmasi', type: 'confirm' | 'delete' = 'confirm'): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setModalConfig({
+        isOpen: true,
+        title,
+        message,
+        type,
+        resolve
+      });
+    });
+  };
+
+  const showModalAlert = (message: string, title: string = 'Pemberitahuan') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      type: 'alert'
+    });
+  };
+
+  const handleModalConfirm = () => {
+    if (modalConfig.resolve) modalConfig.resolve(true);
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleModalCancel = () => {
+    if (modalConfig.resolve) modalConfig.resolve(false);
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
+
   return (
-    <NotificationContext.Provider value={{ showToast, playSound }}>
+    <NotificationContext.Provider value={{ showToast, playSound, speak, confirm, showModalAlert }}>
       {children}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
         {toasts.map((t) => (
@@ -103,6 +172,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           </div>
         ))}
       </div>
+      <ConfirmModal 
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        type={modalConfig.type}
+        onConfirm={handleModalConfirm}
+        onCancel={handleModalCancel}
+      />
     </NotificationContext.Provider>
   );
 };

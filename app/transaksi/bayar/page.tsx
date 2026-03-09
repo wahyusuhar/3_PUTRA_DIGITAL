@@ -18,6 +18,10 @@ interface CatatanHutang {
   jumlah_hutang: number;
   jumlah_bayar: number;
   status_lunas: boolean;
+  created_at: string;
+  transaksi: {
+    catatan_barang: string;
+  };
 }
 
 function BayarHutangContent() {
@@ -36,6 +40,7 @@ function BayarHutangContent() {
     metode: 'cash',
     catatan_barang: 'Bayar Hutang'
   });
+  const [unpaidDebts, setUnpaidDebts] = useState<CatatanHutang[]>([]);
 
   // Fetch preselected pelanggan if ID is in URL
   useEffect(() => {
@@ -52,6 +57,28 @@ function BayarHutangContent() {
       .single();
     
     if (!error && data) setSelectedPelanggan(data);
+  }
+
+  useEffect(() => {
+    if (selectedPelanggan) {
+      fetchUnpaidDebts(selectedPelanggan.id);
+    } else {
+      setUnpaidDebts([]);
+    }
+  }, [selectedPelanggan]);
+
+  async function fetchUnpaidDebts(id: string) {
+    const { data, error } = await supabase
+      .from('catatan_hutang')
+      .select(`
+        *,
+        transaksi ( catatan_barang )
+      `)
+      .eq('pelanggan_id', id)
+      .eq('status_lunas', false)
+      .order('created_at', { ascending: true });
+    
+    if (!error) setUnpaidDebts(data || []);
   }
 
   useEffect(() => {
@@ -143,7 +170,7 @@ function BayarHutangContent() {
       .update({ total_hutang_saat_ini: sisaHutangGlobal })
       .eq('id', selectedPelanggan.id);
 
-    showToast(`Pembayaran Berhasil! Sisa hutang total: Rp ${sisaHutangGlobal.toLocaleString()}`, 'payment');
+    showToast(`Pembayaran Berhasil! Sisa hutang total: Rp ${sisaHutangGlobal.toLocaleString()}`, 'payment', `Hutang di bayar ${bayarAmount.toLocaleString()}`);
     router.push(`/transaksi/struk/${transData.id}`);
     router.refresh();
     setLoading(false);
@@ -209,16 +236,49 @@ function BayarHutangContent() {
             </div>
           </div>
 
-          {selectedPelanggan && (
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-8 rounded-[2rem] text-white shadow-xl shadow-blue-100 landscape:p-4 landscape:rounded-xl">
-              <Wallet className="mb-4 opacity-50 landscape:w-6 landscape:h-6 landscape:mb-2" size={40} />
-              <p className="text-blue-100 font-bold uppercase tracking-widest text-xs landscape:text-[10px]">Total Hutang</p>
-              <h2 className="text-4xl font-black mt-1 landscape:text-xl landscape:mt-0">
-                Rp {selectedPelanggan.total_hutang_saat_ini.toLocaleString()}
-              </h2>
-              <p className="mt-4 text-sm font-medium opacity-80 italic landscape:mt-2 landscape:text-xs">A/N: {selectedPelanggan.nama}</p>
-            </div>
-          )}
+            {selectedPelanggan && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-8 rounded-[2rem] text-white shadow-xl shadow-blue-100 landscape:p-4 landscape:rounded-xl">
+                  <Wallet className="mb-4 opacity-50 landscape:w-6 landscape:h-6 landscape:mb-2" size={40} />
+                  <p className="text-blue-100 font-bold uppercase tracking-widest text-xs landscape:text-[10px]">Total Hutang</p>
+                  <h2 className="text-4xl font-black mt-1 landscape:text-xl landscape:mt-0">
+                    Rp {selectedPelanggan.total_hutang_saat_ini.toLocaleString()}
+                  </h2>
+                  <p className="mt-4 text-sm font-medium opacity-80 italic landscape:mt-2 landscape:text-xs">A/N: {selectedPelanggan.nama}</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm landscape:p-3 landscape:rounded-2xl">
+                  <div className="flex items-center gap-2 mb-4 border-b pb-3 landscape:mb-2 landscape:pb-2">
+                    <HandCoins size={18} className="text-blue-600" />
+                    <h3 className="font-black text-gray-800 text-sm uppercase tracking-tight">Rincian Barang Hutang</h3>
+                  </div>
+                  
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar landscape:max-h-[150px]">
+                    {unpaidDebts.length === 0 ? (
+                      <p className="text-center py-4 text-gray-400 text-xs italic font-bold">Tidak ada rincian barang</p>
+                    ) : (
+                      unpaidDebts.map((debt) => (
+                        <div key={debt.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100 landscape:p-2">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-wider">
+                              {new Date(debt.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                            <span className="text-xs font-black text-gray-900">
+                              Rp {(debt.jumlah_hutang - debt.jumlah_bayar).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="text-xs font-bold text-gray-600 leading-relaxed">
+                            {(debt.transaksi?.catatan_barang || 'Transaksi Tanpa Nama').split(/,\s*/).map((line, idx) => (
+                              <span key={idx} className="block">{line}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
 
         <div>

@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/app/lib/supabase';
 import { Printer, ChevronLeft, Calendar, User, ShoppingBag, Wallet, Download, Loader2, MessageCircle } from 'lucide-react';
+import { supabase } from '@/app/lib/supabase';
+import { useNotification } from '@/app/components/NotificationProvider';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 
@@ -37,6 +38,7 @@ export default function StrukPage() {
   const [hutangLama, setHutangLama] = useState<CatatanHutang[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const { showModalAlert } = useNotification();
 
   useEffect(() => {
     if (transId) {
@@ -86,7 +88,7 @@ export default function StrukPage() {
     // is to use the browser's native print-to-pdf engine.
     
     // We trigger the same print dialog, but show a helpful toast guiding them to save as PDF.
-    alert('Untuk menyimpan sebagai PDF:\n1. Jendela Cetak akan terbuka.\n2. Ubah "Tujuan" (Destination) menjadi "Simpan sebagai PDF" (Save as PDF).\n3. Klik Simpan.');
+    showModalAlert('Untuk menyimpan sebagai PDF:\n1. Jendela Cetak akan terbuka.\n2. Ubah "Tujuan" (Destination) menjadi "Simpan sebagai PDF" (Save as PDF).\n3. Klik Simpan.', 'Simpan PDF');
     
     setTimeout(() => {
       window.print();
@@ -100,12 +102,27 @@ export default function StrukPage() {
     const noWa = transaksi.pelanggan?.no_whatsapp;
     
     if (!noWa) {
-      alert('Nomor WhatsApp pelanggan belum terdaftar.');
+      showModalAlert('Nomor WhatsApp pelanggan belum terdaftar.', 'WhatsApp Error');
       return;
     }
 
+    const isPayment = transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar');
+    const prevBalance = transaksi.pelanggan?.total_hutang_saat_ini + transaksi.total_harga;
+    
     const formattedTotal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.total_harga);
     const formattedSisa = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan?.total_hutang_saat_ini || 0);
+    const formattedPrev = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(prevBalance);
+
+    let infoHutang = "";
+    if (isPayment) {
+      infoHutang = `*Rincian Hutang:*%0A` +
+        `- Hutang Awal: ${formattedPrev}%0A` +
+        `- Bayar: ${formattedTotal}%0A` +
+        `👉 *SISA HUTANG: ${formattedSisa}*`;
+    } else {
+      infoHutang = `*INFO TOTAL HUTANG:*%0A` +
+        `👉 *${formattedSisa}*`;
+    }
 
     const message = `*NOTA 3 PUTRA DIGITAL*%0A` +
       `----------------------------%0A` +
@@ -114,8 +131,7 @@ export default function StrukPage() {
       `*Barang:* ${transaksi.catatan_barang}%0A` +
       `*Total:* ${formattedTotal}%0A` +
       `*Status:* ${transaksi.tipe_transaksi}%0A%0A` +
-      `*INFO TOTAL HUTANG:*%0A` +
-      `👉 *${formattedSisa}*%0A%0A` +
+      `${infoHutang}%0A%0A` +
       `----------------------------%0A` +
       `_Terima kasih sudah belanja!_`;
 
@@ -205,9 +221,15 @@ export default function StrukPage() {
 
         {/* Items */}
         <div className="mb-10">
-          <div className="flex items-center gap-2 mb-4">
-             <ShoppingBag size={14} className="text-gray-400" />
-             <h3 className="text-[11px] font-black uppercase text-gray-800 tracking-wider">Detail Pesanan</h3>
+          <div className="flex items-center gap-2 mb-4 justify-between">
+             <div className="flex items-center gap-2">
+               <ShoppingBag size={14} className="text-gray-400" />
+               <h3 className="text-[11px] font-black uppercase text-gray-800 tracking-wider">
+                 {transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar') 
+                   ? 'Detail Pembayaran' 
+                   : 'Detail Pesanan'}
+               </h3>
+             </div>
           </div>
           <div className="space-y-4">
              <div className="flex flex-col gap-1">
@@ -247,13 +269,43 @@ export default function StrukPage() {
         {/* Debt Section */}
         {transaksi.pelanggan && (
           <div className="bg-red-50 p-6 rounded-3xl border border-red-100 mb-10">
-            <div className="flex items-center gap-2 mb-3">
-              <Wallet size={16} className="text-red-500" />
-              <h3 className="text-[10px] font-black uppercase text-red-600 tracking-widest">Sisa Total Hutang</h3>
-            </div>
-            <p className="text-3xl font-black text-red-700">
-              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan.total_hutang_saat_ini)}
-            </p>
+            {transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar') ? (
+              // Specialized view for debt payment
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-red-600">
+                  <span className="text-[10px] font-black uppercase tracking-widest">Hutang Sebelumnya</span>
+                  <span className="text-sm font-black italic line-through opacity-50">
+                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan.total_hutang_saat_ini + transaksi.total_harga)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-green-600 border-b border-red-200 border-dashed pb-3">
+                  <span className="text-[10px] font-black uppercase tracking-widest">Jumlah Dibayar</span>
+                  <span className="text-sm font-black">
+                    - {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.total_harga)}
+                  </span>
+                </div>
+                <div className="pt-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Wallet size={16} className="text-red-500" />
+                    <h3 className="text-[10px] font-black uppercase text-red-600 tracking-widest">Sisa Hutang Baru</h3>
+                  </div>
+                  <p className="text-3xl font-black text-red-700">
+                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan.total_hutang_saat_ini)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // Default view for normal transactions
+              <>
+                <div className="flex items-center gap-2 mb-3">
+                  <Wallet size={16} className="text-red-500" />
+                  <h3 className="text-[10px] font-black uppercase text-red-600 tracking-widest">Sisa Total Hutang</h3>
+                </div>
+                <p className="text-3xl font-black text-red-700">
+                  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan.total_hutang_saat_ini)}
+                </p>
+              </>
+            )}
             
             {hutangLama.length > 0 && (
               <div className="mt-6 pt-6 border-t border-red-200/50">

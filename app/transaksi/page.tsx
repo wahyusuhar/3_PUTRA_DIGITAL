@@ -17,7 +17,7 @@ function TransaksiContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedId = searchParams.get('pelangganId');
-  const { showToast } = useNotification();
+  const { showToast, playSound } = useNotification();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [pelangganList, setPelangganList] = useState<Pelanggan[]>([]);
@@ -29,6 +29,43 @@ function TransaksiContent() {
     metode: 'cash', // 'cash', 'transfer', 'hutang'
     catatan_barang: ''
   });
+
+  const [items, setItems] = useState<{ id: string; nama: string; harga: number }[]>([]);
+  const [newItem, setNewItem] = useState({ nama: '', harga: '' });
+
+  // Sync items to total_harga and catatan_barang
+  useEffect(() => {
+    const total = items.reduce((acc, item) => acc + item.harga, 0);
+    const notes = items.map(item => `${item.nama} (${item.harga.toLocaleString()})`).join(', ');
+    
+    setFormData(prev => ({
+      ...prev,
+      total_harga: total > 0 ? total.toString() : '',
+      catatan_barang: notes
+    }));
+  }, [items]);
+
+  const addItem = () => {
+    if (!newItem.nama.trim()) return; // Item must have a name
+    
+    const item = {
+      id: Math.random().toString(36).substr(2, 9),
+      nama: newItem.nama.trim(),
+      harga: newItem.harga ? Number(newItem.harga) : 0
+    };
+    
+    setItems([...items, item]);
+    setNewItem({ nama: '', harga: '' });
+    playSound?.('transaction');
+    
+    // Auto-focus back to name input for speed (we can use a ref or just rely on browser behavior)
+    const nameInput = document.querySelector('input[placeholder="Nama Barang..."]') as HTMLInputElement;
+    if (nameInput) nameInput.focus();
+  };
+
+  const removeItem = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
+  };
 
   // Fetch preselected pelanggan if ID is in URL
   useEffect(() => {
@@ -71,10 +108,11 @@ function TransaksiContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPelanggan) return showToast('Pilih pelanggan terlebih dahulu.', 'error');
-    if (!formData.total_harga || isNaN(Number(formData.total_harga))) return showToast('Masukkan jumlah yang valid.', 'error');
+    // Allow nominal 0 for case where prices are unknown
+    const nominal = formData.total_harga ? Number(formData.total_harga) : 0;
+    if (isNaN(nominal)) return showToast('Masukkan jumlah yang valid.', 'error');
 
     setLoading(true);
-    const nominal = Number(formData.total_harga);
     const isHutang = formData.metode === 'hutang';
     const tipe = isHutang ? 'HUTANG' : 'TUNAI';
 
@@ -123,7 +161,7 @@ function TransaksiContent() {
         ]);
     }
 
-    showToast('Transaksi Berhasil Dicatat!', 'transaction');
+    showToast('Transaksi Berhasil Dicatat!', 'transaction', 'Transaksi Berhasil di simpan');
     router.push(`/transaksi/struk/${transData.id}`);
     router.refresh();
   };
@@ -231,26 +269,72 @@ function TransaksiContent() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Total Harga (Rp)</label>
-              <input
-                type="number"
-                placeholder="0"
-                className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-black text-2xl text-blue-600 landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-lg"
-                value={formData.total_harga}
-                onChange={(e) => setFormData({ ...formData, total_harga: e.target.value })}
-              />
+            <div className="border-b border-gray-100 pb-4 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Input Item Barang</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Nama Barang..."
+                  className="flex-1 px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:py-2 landscape:text-xs"
+                  value={newItem.nama}
+                  onChange={(e) => setNewItem({ ...newItem, nama: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}
+                />
+                <input
+                  type="number"
+                  placeholder="Harga"
+                  className="w-24 md:w-32 px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:py-2 landscape:text-xs"
+                  value={newItem.harga}
+                  onChange={(e) => setNewItem({ ...newItem, harga: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}
+                />
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100"
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Catatan Barang</label>
-              <textarea
-                placeholder="Contoh: Beras 5kg, Telur 1kg..."
-                rows={2}
-                className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold resize-none landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-xs"
-                value={formData.catatan_barang}
-                onChange={(e) => setFormData({ ...formData, catatan_barang: e.target.value })}
-              ></textarea>
+            <div className="bg-gray-50 rounded-2xl p-4 min-h-[150px] max-h-[300px] overflow-y-auto border border-gray-100 landscape:p-2 landscape:min-h-[100px] landscape:max-h-[150px]">
+              <div className="flex items-center gap-2 mb-3 border-b border-gray-200 pb-2 landscape:mb-1 landscape:pb-1">
+                <ShoppingCart size={14} className="text-gray-400" />
+                <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Daftar Barang ({items.length})</h4>
+              </div>
+              
+              {items.length === 0 ? (
+                <p className="text-center py-10 text-gray-400 font-bold italic text-xs landscape:py-4">Belum ada barang ditambahkan</p>
+              ) : (
+                <div className="space-y-2">
+                  {items.map(item => (
+                    <div key={item.id} className="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm transition-all hover:border-blue-200 landscape:p-2 landscape:rounded-lg">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-gray-800 text-sm landscape:text-xs">{item.nama}</span>
+                        <span className="text-[10px] font-black text-blue-600">Rp {item.harga.toLocaleString()}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                      >
+                        <ShoppingCart size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2">
+              <div className="flex justify-between items-end mb-1">
+                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Otomatis</label>
+                 <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Rp</span>
+              </div>
+              <div className="w-full px-5 py-3 bg-blue-50 border border-blue-100 rounded-2xl font-black text-3xl text-blue-700 text-right shadow-inner landscape:text-xl landscape:py-2">
+                {formData.total_harga ? Number(formData.total_harga).toLocaleString() : '0'}
+              </div>
             </div>
 
             <button

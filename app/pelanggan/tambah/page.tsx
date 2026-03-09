@@ -49,7 +49,7 @@ export default function TambahPelanggan() {
   };
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="p-6 max-w-lg mx-auto">
       <Link 
         href="/pelanggan" 
         className="inline-flex items-center gap-2 text-gray-500 hover:text-blue-600 font-medium mb-6 transition-colors"
@@ -58,14 +58,14 @@ export default function TambahPelanggan() {
         Kembali ke Daftar
       </Link>
 
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-            <UserPlus size={32} />
+      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+            <UserPlus size={24} />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-gray-800 tracking-tight">Tambah Pelanggan</h1>
-            <p className="text-gray-500 font-medium">Lengkapi data pelanggan baru di bawah ini.</p>
+            <h1 className="text-xl font-black text-gray-800 tracking-tight">Tambah Pelanggan</h1>
+            <p className="text-xs text-gray-500 font-medium">Lengkapi data pelanggan baru di bawah ini.</p>
           </div>
         </div>
 
@@ -77,7 +77,7 @@ export default function TambahPelanggan() {
               name="nama"
               required
               placeholder="Contoh: Budi Santoso"
-              className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800"
+              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm"
               value={formData.nama}
               onChange={handleChange}
             />
@@ -89,7 +89,7 @@ export default function TambahPelanggan() {
               type="text"
               name="no_whatsapp"
               placeholder="Contoh: 08123456789 ( opsional )"
-              className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800"
+              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm"
               value={formData.no_whatsapp}
               onChange={handleChange}
             />
@@ -100,9 +100,9 @@ export default function TambahPelanggan() {
             <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Alamat</label>
             <textarea
               name="alamat"
-              rows={3}
+              rows={2}
               placeholder="Alamat lengkap pelanggan..."
-              className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm resize-none"
               value={formData.alamat}
               onChange={handleChange}
             ></textarea>
@@ -111,7 +111,7 @@ export default function TambahPelanggan() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 hover:shadow-xl active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none text-sm"
           >
             {loading ? (
               <>

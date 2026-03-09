@@ -21,7 +21,8 @@ import {
   X,
   Save,
   Send,
-  PieChart
+  PieChart,
+  ShoppingCart
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
@@ -62,7 +63,9 @@ export default function BukuHutangPelanggan() {
     catatan_barang: '',
     tipe_transaksi: 'TUNAI' as 'TUNAI' | 'HUTANG'
   });
-  const { showToast, playSound } = useNotification();
+  const [editItems, setEditItems] = useState<{ id: string; nama: string; harga: number }[]>([]);
+  const [newEditItem, setNewEditItem] = useState({ nama: '', harga: '' });
+  const { showToast, playSound, confirm } = useNotification();
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -108,8 +111,12 @@ export default function BukuHutangPelanggan() {
   }
 
   const handleDelete = async (trans: LedgerEntry) => {
-    playSound('error');
-    if (!confirm(`Hapus transaksi "${trans.catatan_barang}"?`)) return;
+    const isConfirmed = await confirm(
+      `Hapus transaksi "${trans.catatan_barang}"?`,
+      'Hapus Transaksi',
+      'delete'
+    );
+    if (!isConfirmed) return;
 
     setLoading(true);
     
@@ -142,6 +149,82 @@ export default function BukuHutangPelanggan() {
     setLoading(false);
   };
 
+  const parseNotesToItems = (notes: string) => {
+    if (!notes || notes === 'Transaksi Penjualan') return [];
+    
+    // Split by comma (handles both ", " and ",")
+    const parts = notes.split(/,\s*/);
+    return parts.map(part => {
+      part = part.trim();
+      
+      // 1. Try "Name (Price)" format
+      const matchParens = part.match(/^(.*)\s*\(([\d.,]+)\)$/);
+      if (matchParens) {
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          nama: matchParens[1].trim(),
+          harga: Number(matchParens[2].replace(/[^0-9]/g, ''))
+        };
+      }
+      
+      // 2. Try "Name Price" format (number at the end)
+      const matchSpace = part.match(/^(.*)\s+(\d+)$/);
+      if (matchSpace) {
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          nama: matchSpace[1].trim(),
+          harga: Number(matchSpace[2])
+        };
+      }
+      
+      // 3. Fallback: Entire part is name, price 0
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        nama: part,
+        harga: 0
+      };
+    }).filter(item => item.nama);
+  };
+
+  useEffect(() => {
+    if (!isEditing) return;
+    const total = editItems.reduce((acc, item) => acc + item.harga, 0);
+    const notes = editItems.map(item => `${item.nama} (${item.harga.toLocaleString()})`).join(', ');
+    
+    setEditForm(prev => ({
+      ...prev,
+      total_harga: total.toString(),
+      catatan_barang: notes || 'Transaksi Penjualan'
+    }));
+  }, [editItems, isEditing]);
+
+  const addEditItem = () => {
+    if (!newEditItem.nama.trim()) return;
+    const item = {
+      id: Math.random().toString(36).substr(2, 9),
+      nama: newEditItem.nama.trim(),
+      harga: newEditItem.harga ? Number(newEditItem.harga) : 0
+    };
+    setEditItems([...editItems, item]);
+    setNewEditItem({ nama: '', harga: '' });
+    playSound?.('transaction');
+    
+    setTimeout(() => {
+      const nameInput = document.querySelector('input[placeholder="Nama Barang..."]') as HTMLInputElement;
+      if (nameInput) nameInput.focus();
+    }, 100);
+  };
+
+  const updateEditItem = (id: string, field: 'nama' | 'harga', value: any) => {
+    setEditItems(editItems.map(item => 
+      item.id === id ? { ...item, [field]: field === 'harga' ? Number(value) : value } : item
+    ));
+  };
+
+  const removeEditItem = (id: string) => {
+    setEditItems(editItems.filter(item => item.id !== id));
+  };
+
   const handleEditClick = (trans: LedgerEntry) => {
     setEditingTrans(trans);
     setEditForm({
@@ -149,6 +232,7 @@ export default function BukuHutangPelanggan() {
       catatan_barang: trans.catatan_barang || '',
       tipe_transaksi: trans.tipe_transaksi as 'TUNAI' | 'HUTANG'
     });
+    setEditItems(parseNotesToItems(trans.catatan_barang || ''));
     setIsEditing(true);
   };
 
@@ -164,6 +248,15 @@ export default function BukuHutangPelanggan() {
 
     // Logic: Sync balance and debt entries
     let balanceAdj = 0;
+
+    // Fetch LATEST balance from DB for pinpoint accuracy
+    const { data: latestPelanggan } = await supabase
+       .from('pelanggan')
+       .select('total_hutang_saat_ini')
+       .eq('id', customerId)
+       .single();
+    
+    const currentBalance = latestPelanggan?.total_hutang_saat_ini || 0;
 
     if (oldTipe === 'TUNAI' && newTipe === 'HUTANG') {
       // Changed to debt
@@ -192,7 +285,7 @@ export default function BukuHutangPelanggan() {
     }
 
     if (balanceAdj !== 0) {
-      const updatedBalance = (pelanggan.total_hutang_saat_ini || 0) + balanceAdj;
+      const updatedBalance = currentBalance + balanceAdj;
       await supabase.from('pelanggan').update({ total_hutang_saat_ini: updatedBalance }).eq('id', customerId);
     }
 
@@ -204,7 +297,7 @@ export default function BukuHutangPelanggan() {
     }).eq('id', editingTrans.id);
 
     setIsEditing(false);
-    showToast('Data berhasil diperbarui!', 'transaction'); // Added showToast
+    showToast('Data berhasil diperbarui!', 'transaction', 'Transaksi Berhasil di simpan');
     fetchPelanggan(); // Replaced fetchData
     setSubmitting(false);
   };
@@ -293,6 +386,13 @@ export default function BukuHutangPelanggan() {
               Kirim WA
             </button>
           )}
+          <Link 
+            href={`/pelanggan/${customerId}/rekap-cetak`}
+            className="flex items-center gap-2 px-6 py-4 bg-gray-800 text-white rounded-2xl font-black shadow-lg shadow-gray-200 hover:bg-black transition-all active:scale-95 landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-xs"
+          >
+            <Printer size={20} className="landscape:w-4 landscape:h-4" />
+            Cetak Rekap
+          </Link>
         </div>
       </header>
 
@@ -456,25 +556,83 @@ export default function BukuHutangPelanggan() {
                        </div>
                     </div>
 
-                    <div>
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2 landscape:text-[8px] landscape:mb-1">Total Harga (Rp)</label>
-                       <input 
-                          type="number" 
-                          className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-black text-2xl text-blue-600 transition-all landscape:p-2 landscape:rounded-lg landscape:text-lg"
-                          value={editForm.total_harga}
-                          onChange={(e) => setEditForm({ ...editForm, total_harga: e.target.value })}
-                          required
-                       />
+                    <div className="border-b border-gray-100 pb-4 mb-2">
+                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1.5 landscape:text-[8px] landscape:mb-1">Tambah/Input Barang</label>
+                       <div className="flex gap-2">
+                          <input
+                             type="text"
+                             placeholder="Nama Barang..."
+                             className="flex-1 p-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:p-1.5 landscape:text-xs"
+                             value={newEditItem.nama}
+                             onChange={(e) => setNewEditItem({ ...newEditItem, nama: e.target.value })}
+                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
+                          />
+                          <input
+                             type="number"
+                             placeholder="Harga"
+                             className="w-24 p-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:p-1.5 landscape:text-xs"
+                             value={newEditItem.harga}
+                             onChange={(e) => setNewEditItem({ ...newEditItem, harga: e.target.value })}
+                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
+                          />
+                          <button
+                             type="button"
+                             onClick={addEditItem}
+                             className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100"
+                          >
+                             <Plus size={18} />
+                          </button>
+                       </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-4 min-h-[150px] max-h-[300px] overflow-y-auto border border-gray-100 landscape:p-2 landscape:min-h-[100px] landscape:max-h-[150px]">
+                       <div className="flex items-center gap-2 mb-3 border-b border-gray-200 pb-2 landscape:mb-1 landscape:pb-1">
+                          <ShoppingCart size={14} className="text-gray-400" />
+                          <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Daftar Barang ({editItems.length})</h4>
+                       </div>
+                       
+                       {editItems.length === 0 ? (
+                          <p className="text-center py-10 text-gray-400 font-bold italic text-xs landscape:py-4">Belum ada barang</p>
+                       ) : (
+                          <div className="space-y-2">
+                             {editItems.map(item => (
+                                <div key={item.id} className="flex gap-2 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm transition-all hover:border-blue-200 landscape:p-2 landscape:rounded-lg">
+                                   <input 
+                                      type="text"
+                                      className="flex-1 font-bold text-gray-800 text-sm outline-none bg-transparent landscape:text-xs"
+                                      value={item.nama}
+                                      onChange={(e) => updateEditItem(item.id, 'nama', e.target.value)}
+                                   />
+                                   <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
+                                      <span className="text-[10px] font-black text-blue-400">Rp</span>
+                                      <input 
+                                         type="number"
+                                         className="w-16 font-black text-blue-600 text-[11px] outline-none bg-transparent text-right"
+                                         value={item.harga}
+                                         onChange={(e) => updateEditItem(item.id, 'harga', e.target.value)}
+                                      />
+                                   </div>
+                                   <button
+                                      type="button"
+                                      onClick={() => removeEditItem(item.id)}
+                                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-all"
+                                   >
+                                      <Trash2 size={14} />
+                                   </button>
+                                </div>
+                             ))}
+                          </div>
+                       )}
                     </div>
 
                     <div>
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2 landscape:text-[8px] landscape:mb-1">Catatan Barang</label>
-                       <textarea 
-                          className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-gray-700 transition-all resize-none landscape:p-2 landscape:rounded-lg landscape:text-xs"
-                          rows={2}
-                          value={editForm.catatan_barang}
-                          onChange={(e) => setEditForm({ ...editForm, catatan_barang: e.target.value })}
-                       />
+                       <div className="flex justify-between items-end mb-1">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Otomatis</label>
+                          <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Rp</span>
+                       </div>
+                       <div className="w-full p-4 bg-blue-50 border border-blue-100 rounded-2xl font-black text-3xl text-blue-700 text-right shadow-inner landscape:text-xl landscape:p-2">
+                          {Number(editForm.total_harga).toLocaleString()}
+                       </div>
                     </div>
                  </div>
 

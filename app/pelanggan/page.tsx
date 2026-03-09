@@ -19,7 +19,7 @@ export default function DaftarPelanggan() {
   const [pelanggan, setPelanggan] = useState<Pelanggan[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const { showToast, playSound } = useNotification();
+  const { showToast, playSound, confirm } = useNotification();
 
   useEffect(() => {
     fetchPelanggan();
@@ -41,8 +41,13 @@ export default function DaftarPelanggan() {
   }
 
   async function handleDelete(id: string, nama: string) {
-    playSound('error');
-    if (confirm(`Yakin ingin menghapus pelanggan "${nama}"?`)) {
+    const isConfirmed = await confirm(
+      `Yakin ingin menghapus pelanggan "${nama}"?`,
+      'Hapus Pelanggan',
+      'delete'
+    );
+    
+    if (isConfirmed) {
       const { error } = await supabase
         .from('pelanggan')
         .delete()
