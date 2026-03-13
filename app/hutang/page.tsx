@@ -58,27 +58,27 @@ export default function RekapanHutangPage() {
   const totalOutstanding = records.reduce((acc, r) => acc + (r.jumlah_hutang - (r.jumlah_bayar || 0)), 0);
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col h-full min-h-[calc(100vh-80px)] landscape:min-h-0 landscape:h-auto landscape:p-2">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 landscape:gap-2 landscape:mb-3">
+    <div className="p-4 md:p-6 w-full flex flex-col h-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden lg:p-4">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-800 tracking-tight landscape:text-xl">Rekapan Hutang</h1>
-          <p className="text-gray-500 font-medium landscape:text-xs">Monitor semua kasbon pelanggan yang belum lunas.</p>
+          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">Rekapan Hutang</h1>
+          <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-widest opacity-60">Monitor semua kasbon pelanggan yang belum lunas.</p>
         </div>
         
-        <div className="bg-red-50 px-6 py-4 rounded-3xl border border-red-100 landscape:px-3 landscape:py-2 landscape:rounded-xl">
-          <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1 text-center landscape:text-[8px] landscape:mb-0">Total Belum Tertagih</p>
-          <p className="text-2xl font-black text-red-600 landscape:text-lg">
+        <div className="bg-red-50 px-4 py-2 rounded-xl border border-red-100 flex flex-col items-center">
+          <p className="text-[8px] font-black text-red-400 uppercase tracking-widest">Total Piutang</p>
+          <p className="text-lg md:text-xl font-black text-red-600 leading-none mt-0.5">
             {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalOutstanding)}
           </p>
         </div>
       </header>
 
-      <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 mb-8 flex items-center gap-4 landscape:p-2 landscape:rounded-xl landscape:mb-3 landscape:gap-2">
-        <Search className="text-gray-400 ml-2 landscape:w-4 landscape:h-4 landscape:ml-1" size={20} />
+      <div className="bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 mb-4 flex items-center gap-3">
+        <Search className="text-gray-400 ml-2" size={16} />
         <input 
           type="text" 
-          placeholder="Cari nama pelanggan atau barang..."
-          className="flex-1 outline-none font-bold text-gray-700 p-2 landscape:p-1 landscape:text-xs"
+          placeholder="Cari nama atau barang..."
+          className="flex-1 outline-none font-bold text-gray-700 p-1 text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

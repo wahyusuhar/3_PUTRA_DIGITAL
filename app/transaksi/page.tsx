@@ -167,20 +167,20 @@ function TransaksiContent() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col h-full min-h-[calc(100vh-80px)] landscape:min-h-0 landscape:h-auto landscape:p-2">
-      <div className="flex justify-between items-center mb-10 landscape:mb-3">
+    <div className="p-4 md:p-6 w-full flex flex-col h-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden lg:p-4">
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-4xl font-black text-gray-800 tracking-tight landscape:text-xl">Transaksi Baru</h1>
-          <p className="text-gray-500 font-medium landscape:text-xs">Catat penjualan harian dengan mudah.</p>
+          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">Transaksi Baru</h1>
+          <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-widest opacity-60">Catat penjualan harian dengan mudah.</p>
         </div>
-        <div className="flex gap-4 landscape:gap-2">
-          <Link href="/transaksi/bayar" className="bg-red-50 p-4 rounded-2xl border border-red-100 flex items-center gap-3 hover:bg-red-100 transition-colors group landscape:p-2 landscape:rounded-xl landscape:gap-1.5">
-            <Calculator className="text-red-600 group-hover:scale-110 transition-transform landscape:w-4 landscape:h-4" />
-            <p className="text-red-700 font-bold whitespace-nowrap landscape:text-xs">Bayar Hutang</p>
+        <div className="flex gap-2">
+          <Link href="/transaksi/bayar" className="bg-red-50 p-2.5 rounded-xl border border-red-100 flex items-center gap-2 hover:bg-red-100 transition-colors group">
+            <Calculator className="text-red-600 group-hover:scale-110 transition-transform" size={16} />
+            <p className="text-red-700 font-bold whitespace-nowrap text-xs">Bayar Hutang</p>
           </Link>
-          <Link href="/laporan" className="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex items-center gap-3 hover:bg-blue-100 transition-colors group landscape:p-2 landscape:rounded-xl landscape:gap-1.5">
-            <History className="text-blue-600 group-hover:rotate-12 transition-transform landscape:w-4 landscape:h-4" />
-            <p className="text-blue-700 font-bold tracking-tight landscape:text-xs">Riwayat</p>
+          <Link href="/laporan" className="bg-blue-50 p-2.5 rounded-xl border border-blue-100 flex items-center gap-2 hover:bg-blue-100 transition-colors group">
+            <History className="text-blue-600 group-hover:rotate-12 transition-transform" size={16} />
+            <p className="text-blue-700 font-bold tracking-tight text-xs">Riwayat</p>
           </Link>
         </div>
       </div>
@@ -194,7 +194,7 @@ function TransaksiContent() {
               <input
                 type="text"
                 placeholder="Ketik nama pelanggan..."
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold landscape:pl-9 landscape:pr-3 landscape:py-2 landscape:text-xs landscape:rounded-xl"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold landscape:pl-9 landscape:pr-3 landscape:py-2 landscape:text-xs landscape:rounded-xl"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -275,7 +275,7 @@ function TransaksiContent() {
                 <input
                   type="text"
                   placeholder="Nama Barang..."
-                  className="flex-1 px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:py-2 landscape:text-xs"
+                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:py-2 landscape:text-xs"
                   value={newItem.nama}
                   onChange={(e) => setNewItem({ ...newItem, nama: e.target.value })}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}
@@ -283,7 +283,7 @@ function TransaksiContent() {
                 <input
                   type="number"
                   placeholder="Harga"
-                  className="w-24 md:w-32 px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:py-2 landscape:text-xs"
+                  className="w-24 md:w-32 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:py-2 landscape:text-xs"
                   value={newItem.harga}
                   onChange={(e) => setNewItem({ ...newItem, harga: e.target.value })}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}

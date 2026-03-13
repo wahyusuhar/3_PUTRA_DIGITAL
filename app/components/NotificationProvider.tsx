@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Info, X, Users, Wallet, ShoppingBag } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
-type ToastType = 'success' | 'error' | 'info' | 'member' | 'payment' | 'transaction';
+type ToastType = 'success' | 'error' | 'info' | 'member' | 'payment' | 'transaction' | 'login' | 'logout';
 
 interface Toast {
   id: number;
@@ -34,6 +34,8 @@ const SOUNDS = {
   payment: 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3', // Cha-ching shimmer
   transaction: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3', // Confirm ding
   error: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3', // Error blunt
+  login: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3', // Tech success
+  logout: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3', // Tech exit
 };
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -58,6 +60,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (type === 'member') soundUrl = SOUNDS.member;
     else if (type === 'payment') soundUrl = SOUNDS.payment;
     else if (type === 'transaction' || type === 'success' || type === 'info') soundUrl = SOUNDS.transaction;
+    else if (type === 'login') soundUrl = SOUNDS.login;
+    else if (type === 'logout') soundUrl = SOUNDS.logout;
     else if (type === 'error') soundUrl = SOUNDS.error;
 
     if (soundUrl) {

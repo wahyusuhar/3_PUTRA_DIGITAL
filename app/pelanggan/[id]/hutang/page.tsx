@@ -346,7 +346,7 @@ export default function BukuHutangPelanggan() {
   );
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col h-full min-h-[calc(100vh-80px)] landscape:min-h-0 landscape:h-auto landscape:p-2">
+    <div className="p-4 md:p-6 w-full flex flex-col h-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden lg:p-4">
       {/* Header section */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 landscape:gap-2 landscape:mb-3">
         <div className="flex items-center gap-4 landscape:gap-2">
@@ -423,7 +423,7 @@ export default function BukuHutangPelanggan() {
            <input 
               type="text" 
               placeholder="Cari transaksi atau pembayaran..."
-              className="flex-1 outline-none font-bold text-gray-700"
+              className="flex-1 outline-none font-bold text-gray-700 bg-transparent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
            />
@@ -559,22 +559,22 @@ export default function BukuHutangPelanggan() {
                     <div className="border-b border-gray-100 pb-4 mb-2">
                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1.5 landscape:text-[8px] landscape:mb-1">Tambah/Input Barang</label>
                        <div className="flex gap-2">
-                          <input
-                             type="text"
-                             placeholder="Nama Barang..."
-                             className="flex-1 p-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:p-1.5 landscape:text-xs"
-                             value={newEditItem.nama}
-                             onChange={(e) => setNewEditItem({ ...newEditItem, nama: e.target.value })}
-                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
-                          />
-                          <input
-                             type="number"
-                             placeholder="Harga"
-                             className="w-24 p-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:p-1.5 landscape:text-xs"
-                             value={newEditItem.harga}
-                             onChange={(e) => setNewEditItem({ ...newEditItem, harga: e.target.value })}
-                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
-                          />
+                           <input
+                              type="text"
+                              placeholder="Nama Barang..."
+                              className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:p-1.5 landscape:text-xs"
+                              value={newEditItem.nama}
+                              onChange={(e) => setNewEditItem({ ...newEditItem, nama: e.target.value })}
+                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
+                           />
+                           <input
+                              type="number"
+                              placeholder="Harga"
+                              className="w-24 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:p-1.5 landscape:text-xs"
+                              value={newEditItem.harga}
+                              onChange={(e) => setNewEditItem({ ...newEditItem, harga: e.target.value })}
+                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
+                           />
                           <button
                              type="button"
                              onClick={addEditItem}

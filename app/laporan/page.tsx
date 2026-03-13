@@ -266,46 +266,46 @@ export default function LaporanPage() {
     .reduce((acc, t) => acc + Number(t.total_harga), 0);
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col h-full min-h-[calc(100vh-80px)] landscape:min-h-0 landscape:h-auto landscape:p-2">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 landscape:gap-2 landscape:mb-3">
+    <div className="p-4 md:p-6 w-full flex flex-col h-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden lg:p-4">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-800 tracking-tight landscape:text-xl">Rekapan Transaksi</h1>
-          <p className="text-gray-500 font-medium landscape:text-xs">Lihat laporan harian tokomu.</p>
+          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">Rekapan Transaksi</h1>
+          <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-widest opacity-60">Lihat laporan harian tokomu.</p>
         </div>
         
-        <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 landscape:p-1 landscape:rounded-xl">
-          <Calendar className="text-blue-600 ml-2 landscape:w-4 landscape:h-4" size={20} />
+        <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-100">
+          <Calendar className="text-blue-600 ml-1.5" size={16} />
           <input 
             type="date" 
-            className="outline-none font-bold text-gray-700 p-2 landscape:p-1 landscape:text-xs"
+            className="outline-none font-bold text-gray-700 p-1 text-xs"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
       </header>
 
-      <div className="grid grid-cols-2 gap-2 md:gap-6 mb-4 md:mb-8 landscape:mb-2 landscape:gap-2">
-        <div className="bg-white p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between overflow-hidden relative landscape:p-2 landscape:rounded-xl">
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between overflow-hidden relative">
           <div>
-            <p className="text-[9px] md:text-sm font-bold text-gray-400 uppercase tracking-widest mb-1 landscape:text-[8px] landscape:mb-0">Tunai Masuk</p>
-            <h3 className="text-sm md:text-3xl font-black text-green-600 landscape:text-xs">
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Tunai Masuk</p>
+            <h3 className="text-base md:text-xl font-black text-green-600">
               {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalTunai)}
             </h3>
           </div>
-          <div className="p-2 md:p-4 bg-green-50 rounded-xl md:rounded-2xl text-green-500 landscape:p-1.5 landscape:rounded-lg">
-            <ArrowUpRight size={24} className="md:w-8 md:h-8 landscape:w-5 landscape:h-5" />
+          <div className="p-2 bg-green-50 rounded-xl text-green-500">
+            <ArrowUpRight size={20} />
           </div>
         </div>
 
-        <div className="bg-white p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between overflow-hidden relative landscape:p-2 landscape:rounded-xl">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between overflow-hidden relative">
           <div>
-            <p className="text-[9px] md:text-sm font-bold text-gray-400 uppercase tracking-widest mb-1 landscape:text-[8px] landscape:mb-0">Hutang Baru</p>
-            <h3 className="text-sm md:text-3xl font-black text-red-600 landscape:text-xs">
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Hutang Baru</p>
+            <h3 className="text-base md:text-xl font-black text-red-600">
               {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalHutang)}
             </h3>
           </div>
-          <div className="p-2 md:p-4 bg-red-50 rounded-xl md:rounded-2xl text-red-500 landscape:p-1.5 landscape:rounded-lg">
-            <ArrowDownLeft size={24} className="md:w-8 md:h-8 landscape:w-5 landscape:h-5" />
+          <div className="p-2 bg-red-50 rounded-xl text-red-500">
+            <ArrowDownLeft size={20} />
           </div>
         </div>
       </div>
@@ -443,7 +443,7 @@ export default function LaporanPage() {
                           <input
                              type="text"
                              placeholder="Nama Barang..."
-                             className="flex-1 p-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:p-1.5 landscape:text-xs"
+                             className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:p-1.5 landscape:text-xs"
                              value={newEditItem.nama}
                              onChange={(e) => setNewEditItem({ ...newEditItem, nama: e.target.value })}
                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
@@ -451,7 +451,7 @@ export default function LaporanPage() {
                           <input
                              type="number"
                              placeholder="Harga"
-                             className="w-24 p-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:p-1.5 landscape:text-xs"
+                             className="w-24 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:p-1.5 landscape:text-xs"
                              value={newEditItem.harga}
                              onChange={(e) => setNewEditItem({ ...newEditItem, harga: e.target.value })}
                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}

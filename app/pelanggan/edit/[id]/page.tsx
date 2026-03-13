@@ -113,7 +113,7 @@ export default function EditPelanggan() {
               name="nama"
               required
               placeholder="Contoh: Budi Santoso"
-              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm"
               value={formData.nama}
               onChange={handleChange}
             />
@@ -125,7 +125,7 @@ export default function EditPelanggan() {
               type="text"
               name="no_whatsapp"
               placeholder="Contoh: 08123456789 ( opsional )"
-              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm"
               value={formData.no_whatsapp}
               onChange={handleChange}
             />
@@ -138,7 +138,7 @@ export default function EditPelanggan() {
               name="alamat"
               rows={2}
               placeholder="Alamat lengkap pelanggan..."
-              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-800 text-sm resize-none"
               value={formData.alamat}
               onChange={handleChange}
             ></textarea>

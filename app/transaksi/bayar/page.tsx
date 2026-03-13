@@ -201,7 +201,7 @@ function BayarHutangContent() {
               <input
                 type="text"
                 placeholder="Ketik nama pelanggan..."
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold landscape:pl-9 landscape:pr-3 landscape:py-2 landscape:text-xs landscape:rounded-xl"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold landscape:pl-9 landscape:pr-3 landscape:py-2 landscape:text-xs landscape:rounded-xl"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -314,7 +314,7 @@ function BayarHutangContent() {
               <input
                 type="number"
                 placeholder="Masukkan nominal..."
-                className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-black text-2xl text-green-600 landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-lg"
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-black text-2xl text-green-600 landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-lg"
                 value={formData.jumlah_bayar}
                 onChange={(e) => setFormData({ ...formData, jumlah_bayar: e.target.value })}
               />
