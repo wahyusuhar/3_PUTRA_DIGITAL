@@ -113,14 +113,20 @@ let connectedDevice: BluetoothDevice | null = null;
 let printerCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
 
 export function checkBluetoothSupport() {
+  if (typeof navigator === 'undefined') return { supported: false, reason: 'ssr' };
+  
   if (!navigator.bluetooth) {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const isHttps = window.location.protocol === 'https:';
     
     if (!isHttps && !isLocal) {
-      return { supported: false, reason: 'browser_security', message: 'Browser memblokir Bluetooth karena koneksi tidak aman (Bukan HTTPS).' };
+      return { supported: false, reason: 'browser_security', message: 'Browser memblokir Bluetooth karena koneksi tidak aman (Bukan HTTPS). Jika di Vercel, pastikan menggunakan alamat https://' };
     }
-    return { supported: false, reason: 'not_supported', message: 'Browser Anda tidak mendukung Web Bluetooth.' };
+    
+    // Check for common blockers
+    if (isHttps || isLocal) {
+      return { supported: false, reason: 'not_supported', message: 'Browser/Perangkat Anda tidak mendukung Web Bluetooth. (iPhone/Safari belum didukung, gunakan Chrome di Android/PC).' };
+    }
   }
   return { supported: true };
 }
