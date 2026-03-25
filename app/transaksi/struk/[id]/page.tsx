@@ -181,47 +181,87 @@ export default function StrukPage() {
         .line('3 PUTRA DIGITAL')
         .size(0, 0) // Normal size
         .bold(false)
-        .line('Solusi Hutang & Kasir')
+        .line('SOLUSI CATAT HUTANG & KASIR')
         .newline(1)
         .alignLeft()
-        .line(`No: #${idStr}`)
-        .line(`Tgl: ${date} ${time}`)
+        .line(`Tanggal: ${' '.repeat(15)}${date}`)
+        .line(`Waktu: ${' '.repeat(17)}${time} WIB`)
         .dashedLine()
-        .line(`Pelanggan: ${nama}`)
+        .newline(1)
+        .alignCenter()
+        .line(`PELANGGAN:  ${nama.toUpperCase()}`)
+        .line(`NO: #${idStr}`)
+        .newline(1)
+        .alignLeft()
+        .bold(true)
+        .line('DETAIL PESANAN')
+        .bold(false);
+
+      // Items split by comma
+      const items = transaksi.catatan_barang.split(',');
+      items.forEach(item => {
+        const cleanItem = item.trim();
+        if (cleanItem) {
+          encoder.line(cleanItem);
+          // Try to extract price from parenthesis if it exists to show "HARGA" line
+          const priceMatch = cleanItem.match(/\(([^)]+)\)/);
+          if (priceMatch) {
+            const price = priceMatch[1].replace(/[^0-9]/g, '');
+            if (price) {
+              const formattedPrice = new Intl.NumberFormat('id-ID').format(parseInt(price));
+              encoder.text('HARGA')
+                .alignRight()
+                .text(formattedPrice)
+                .newline(1)
+                .alignLeft();
+            }
+          }
+        }
+      });
+
+      encoder.line('________________________________') // Solid line
         .newline(1)
         .bold(true)
-        .line(transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar') 
-          ? 'PELUNASAN / BAYAR:'
-          : 'PESANAN:')
-        .bold(false)
-        .line(transaksi.catatan_barang)
-        .newline(1)
-        .dashedLine()
-        .size(0, 0)
-        .bold(true)
-        .text('TOTAL: ')
+        .text('SUBTOTAL')
         .alignRight()
         .text(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.total_harga)}`)
         .newline(1)
         .alignLeft()
+        .newline(1)
+        .bold(true)
+        .size(1, 0) // Wider
+        .text('TOTAL')
+        .alignRight()
+        .text(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.total_harga)}`)
+        .size(0, 0)
+        .newline(1)
+        .alignLeft()
         .bold(false)
-        .line(`Metode: ${transaksi.tipe_transaksi}`)
-        .dashedLine();
+        .newline(1)
+        .text('METODE')
+        .alignRight()
+        .text(transaksi.tipe_transaksi)
+        .newline(1)
+        .alignLeft()
+        .newline(1);
 
       if (transaksi.pelanggan) {
-        encoder.bold(true)
-          .line('SISA HUTANG:')
+        encoder.dashedLine()
+          .alignCenter()
+          .bold(true)
+          .line('SISA TOTAL HUTANG')
           .size(1, 1)
           .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan.total_hutang_saat_ini)}`)
           .size(0, 0)
           .bold(false)
+          .alignLeft()
           .dashedLine();
       }
 
       encoder.newline(1)
         .alignCenter()
-        .line('Terima Kasih!')
-        .line('Software by Digital Store')
+        .line('TERIMA KASIH ATAS BELANJA ANDA')
+        .line('Software by Digital Store System')
         .newline(4); // Feed some paper
 
       await printData(encoder.getBuffer());
