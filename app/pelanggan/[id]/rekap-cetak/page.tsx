@@ -134,11 +134,14 @@ export default function CetakRekapHutangPage() {
       
       encoder.initialize()
         .alignCenter()
+        .bold(true)
+        .line('TOKO')
         .size(1, 1)
+        .line('3 PUTRA DIGITAL')
+        .size(0, 0)
         .bold(true)
         .line('REKAP HUTANG')
-        .size(0, 0)
-        .line('3 PUTRA DIGITAL')
+        .bold(false)
         .newline(1)
         .alignLeft()
         .line(`Pelanggan: ${pelanggan.nama}`)
@@ -270,8 +273,9 @@ export default function CetakRekapHutangPage() {
           
           {/* Header */}
           <div className="text-center mb-6 print:mb-4 landscape:mb-4">
-            <h2 className="text-3xl font-black text-blue-600 print:text-black tracking-tighter mb-1 print:text-xl landscape:text-2xl">REKAP HUTANG</h2>
-            <p className="text-sm font-bold tracking-widest text-gray-400 print:text-[10px] landscape:text-xs">3 PUTRA DIGITAL</p>
+            <p className="text-[10px] font-black tracking-[0.4em] text-gray-400 mb-1 print:text-[8px] landscape:text-[9px]">TOKO</p>
+            <h2 className="text-3xl font-black text-blue-600 print:text-black tracking-tighter mb-1 print:text-xl landscape:text-2xl">3 PUTRA DIGITAL</h2>
+            <p className="text-sm font-bold tracking-widest text-gray-400 print:text-[10px] landscape:text-xs uppercase">REKAP HUTANG</p>
           </div>
           
           <div className="border-t-2 border-dashed border-gray-300 my-4 print:my-2 landscape:my-3"></div>

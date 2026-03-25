@@ -176,8 +176,9 @@ export default function StrukPage() {
 
       encoder.initialize()
         .alignCenter()
-        .size(1, 1) // Double height & width
         .bold(true)
+        .line('TOKO')
+        .size(1, 1) // Double height & width
         .line('3 PUTRA DIGITAL')
         .size(0, 0)
         .bold(false)
@@ -231,14 +232,40 @@ export default function StrukPage() {
         .dashedLine();
 
       if (transaksi.pelanggan) {
-        encoder.newline(1)
-          .line('SISA HUTANG:')
-          .size(1, 1)
-          .bold(true)
-          .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan?.total_hutang_saat_ini || 0)}`)
-          .size(0, 0)
-          .bold(false)
-          .dashedLine();
+        encoder.newline(1);
+        
+        const isPayment = transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar');
+        
+        if (isPayment) {
+          const hutangAwal = (transaksi.pelanggan?.total_hutang_saat_ini || 0) + transaksi.total_harga;
+          encoder.line('RINGKASAN PEMBAYARAN')
+            .text('Hutang Awal')
+            .alignRight()
+            .text(`Rp ${new Intl.NumberFormat('id-ID').format(hutangAwal)}`)
+            .newline(1)
+            .alignLeft()
+            .text('Dibayar')
+            .alignRight()
+            .text(`- Rp ${new Intl.NumberFormat('id-ID').format(transaksi.total_harga)}`)
+            .newline(1)
+            .alignLeft()
+            .dashedLine()
+            .line('SISA HUTANG BARU:')
+            .size(1, 1)
+            .bold(true)
+            .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan?.total_hutang_saat_ini || 0)}`)
+            .size(0, 0)
+            .bold(false)
+            .dashedLine();
+        } else {
+          encoder.line('SISA HUTANG:')
+            .size(1, 1)
+            .bold(true)
+            .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan?.total_hutang_saat_ini || 0)}`)
+            .size(0, 0)
+            .bold(false)
+            .dashedLine();
+        }
       }
 
       encoder.newline(1)
@@ -327,8 +354,9 @@ export default function StrukPage() {
       >
         {/* Header */}
         <div className="text-center mb-10 border-b border-dashed border-gray-300 pb-8">
+          <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] mb-1">TOKO</p>
           <h1 className="text-3xl font-black tracking-tighter text-gray-900 mb-1">3 PUTRA DIGITAL</h1>
-          <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-4">Solusi Catat Hutang & Kasir</p>
+          <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-4">Solusi Hutang & Kasir</p>
           
           <div className="flex flex-col gap-1 text-[11px] font-bold text-gray-500">
              <div className="flex justify-between border-t border-gray-100 pt-4 mt-2">
