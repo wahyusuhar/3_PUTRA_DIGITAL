@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, ShoppingCart, CreditCard, Banknote, History, Save, Loader2, User, ChevronRight, Calculator, Plus } from 'lucide-react';
+import { Search, ShoppingCart, CreditCard, Banknote, History, Save, Loader2, User, ChevronRight, Calculator, Plus, Calendar } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import { useNotification } from '@/app/components/NotificationProvider';
 
@@ -27,7 +27,8 @@ function TransaksiContent() {
   const [formData, setFormData] = useState({
     total_harga: '',
     metode: 'cash', // 'cash', 'transfer', 'hutang'
-    catatan_barang: ''
+    catatan_barang: '',
+    tanggal_transaksi: new Date().toISOString().split('T')[0]
   });
 
   const [items, setItems] = useState<{ id: string; nama: string; harga: number }[]>([]);
@@ -125,7 +126,7 @@ function TransaksiContent() {
           tipe_transaksi: tipe,
           total_harga: nominal,
           catatan_barang: formData.catatan_barang || 'Transaksi Penjualan',
-          tanggal_transaksi: new Date().toISOString().split('T')[0]
+          tanggal_transaksi: formData.tanggal_transaksi
         }
       ])
       .select()
@@ -167,7 +168,7 @@ function TransaksiContent() {
   };
 
   return (
-    <div className="p-4 md:p-6 w-full flex flex-col h-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden lg:p-4">
+    <div className="w-full flex flex-col flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 md:p-6">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">Transaksi Baru</h1>
@@ -243,7 +244,23 @@ function TransaksiContent() {
 
         <div>
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 space-y-6 landscape:p-3 landscape:rounded-2xl landscape:space-y-3">
-            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Langkah 2: Detail Belanja</label>
+            <h3 className="text-lg font-black text-gray-800 border-b pb-4 landscape:text-sm landscape:pb-2 uppercase tracking-tight">Opsi Transaksi</h3>
+            
+            {/* Transaction Date Selector */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Tanggal Transaksi</label>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-4 landscape:h-4" size={18} />
+                <input
+                  type="date"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-bold text-gray-700 landscape:pl-9 landscape:py-2 landscape:text-xs landscape:rounded-xl"
+                  value={formData.tanggal_transaksi}
+                  onChange={(e) => setFormData({ ...formData, tanggal_transaksi: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Metode Pembayaran</label>
             
             <div>
               <p className="text-sm font-bold text-gray-500 mb-3 landscape:text-[10px] landscape:mb-1">Metode Pembayaran</p>

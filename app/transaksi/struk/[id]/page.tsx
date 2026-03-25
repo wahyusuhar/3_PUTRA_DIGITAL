@@ -7,6 +7,7 @@ import { supabase } from '@/app/lib/supabase';
 import { useNotification } from '@/app/components/NotificationProvider';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
+import { EscPosEncoder, connectPrinter, printData, isPrinterConnected } from '@/app/lib/printer';
 
 interface Transaksi {
   id: string;
@@ -38,6 +39,7 @@ export default function StrukPage() {
   const [hutangLama, setHutangLama] = useState<CatatanHutang[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [printingBluetooth, setPrintingBluetooth] = useState(false);
   const { showModalAlert } = useNotification();
 
   useEffect(() => {
@@ -142,11 +144,87 @@ export default function StrukPage() {
     window.open(waUrl, '_blank');
   };
 
+  const handleBluetoothPrint = async () => {
+    if (!transaksi) return;
+    
+    setPrintingBluetooth(true);
+    try {
+      // Connect if not already connected
+      if (!isPrinterConnected()) {
+        await connectPrinter();
+      }
+
+      const encoder = new EscPosEncoder();
+      const nama = transaksi.pelanggan?.nama || 'UMUM';
+      const date = format(new Date(transaksi.created_at), 'dd-MM-yyyy');
+      const time = format(new Date(transaksi.created_at), 'HH:mm');
+      const idStr = transaksi.id.split('-')[0].toUpperCase();
+
+      encoder.initialize()
+        .alignCenter()
+        .size(1, 1) // Double size
+        .bold(true)
+        .line('3 PUTRA DIGITAL')
+        .size(0, 0) // Normal size
+        .bold(false)
+        .line('Solusi Hutang & Kasir')
+        .newline(1)
+        .alignLeft()
+        .line(`No: #${idStr}`)
+        .line(`Tgl: ${date} ${time}`)
+        .dashedLine()
+        .line(`Pelanggan: ${nama}`)
+        .newline(1)
+        .bold(true)
+        .line(transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar') 
+          ? 'PELUNASAN / BAYAR:'
+          : 'PESANAN:')
+        .bold(false)
+        .line(transaksi.catatan_barang)
+        .newline(1)
+        .dashedLine()
+        .size(0, 0)
+        .bold(true)
+        .text('TOTAL: ')
+        .alignRight()
+        .text(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.total_harga)}`)
+        .newline(1)
+        .alignLeft()
+        .bold(false)
+        .line(`Metode: ${transaksi.tipe_transaksi}`)
+        .dashedLine();
+
+      if (transaksi.pelanggan) {
+        encoder.bold(true)
+          .line('SISA HUTANG:')
+          .size(1, 1)
+          .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan.total_hutang_saat_ini)}`)
+          .size(0, 0)
+          .bold(false)
+          .dashedLine();
+      }
+
+      encoder.newline(1)
+        .alignCenter()
+        .line('Terima Kasih!')
+        .line('Software by Digital Store')
+        .newline(4); // Feed some paper
+
+      await printData(encoder.getBuffer());
+    } catch (error: any) {
+      if (error.name !== 'NotFoundError' && error.name !== 'AbortError') {
+        showModalAlert('Gagal mencetak: ' + (error.message || 'Bluetooth Error'), 'Printer Error');
+      }
+    } finally {
+      setPrintingBluetooth(false);
+    }
+  };
+
   if (loading) return <div className="p-20 text-center font-black">Menyiapkan struk...</div>;
   if (!transaksi) return <div className="p-20 text-center font-black text-red-500">Struk tidak ditemukan.</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 print:bg-white print:py-0 landscape:py-4">
+    <div className="w-full flex flex-col flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-gray-50 items-center py-10 print:bg-white print:py-0 landscape:py-4">
       
       {/* Controls - Hidden during print */}
       <div className="w-full max-w-[400px] flex justify-between items-center mb-8 px-4 print:hidden landscape:mb-4 landscape:px-2">
@@ -176,6 +254,18 @@ export default function StrukPage() {
               WA
             </button>
           )}
+
+          <button 
+            onClick={handleBluetoothPrint}
+            disabled={printingBluetooth}
+            className={`px-4 py-3 border border-blue-600 rounded-2xl font-black shadow-sm transition-all flex items-center gap-2 text-xs landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-[10px] ${
+              printingBluetooth ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white text-blue-600 hover:bg-blue-50 active:scale-95'
+            }`}
+            title="Cetak via Bluetooth Thermal"
+          >
+            {printingBluetooth ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+            BT
+          </button>
 
           <button 
             onClick={handlePrint}
@@ -305,20 +395,6 @@ export default function StrukPage() {
                   {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan.total_hutang_saat_ini)}
                 </p>
               </>
-            )}
-            
-            {hutangLama.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-red-200/50">
-                 <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mb-3">Item Kasbon Lainnya:</p>
-                 <div className="space-y-2">
-                    {hutangLama.map((h, i) => (
-                      <div key={i} className="flex justify-between text-[10px] font-bold text-red-600/70">
-                        <span className="truncate max-w-[140px] italic">{h.catatan_barang}</span>
-                        <span>{new Intl.NumberFormat('id-ID').format(h.total_harga)}</span>
-                      </div>
-                    ))}
-                 </div>
-              </div>
             )}
           </div>
         )}

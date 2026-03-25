@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase';
 import { useNotification } from '@/app/components/NotificationProvider';
 import { 
@@ -22,7 +22,8 @@ import {
   Save,
   Send,
   PieChart,
-  ShoppingCart
+  ShoppingCart,
+  RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
@@ -46,9 +47,24 @@ interface LedgerEntry {
 }
 
 export default function BukuHutangPelanggan() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <Loader2 className="animate-spin text-indigo-600 mb-4" size={48} />
+        <p className="text-gray-500 font-bold italic tracking-wider">Memuat Halaman...</p>
+      </div>
+    }>
+      <BukuHutangContent />
+    </Suspense>
+  );
+}
+
+function BukuHutangContent() {
   const params = useParams();
   const customerId = params.id as string;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('editId');
 
   const [pelanggan, setPelanggan] = useState<Pelanggan | null>(null);
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -61,7 +77,8 @@ export default function BukuHutangPelanggan() {
   const [editForm, setEditForm] = useState({
     total_harga: '',
     catatan_barang: '',
-    tipe_transaksi: 'TUNAI' as 'TUNAI' | 'HUTANG'
+    tipe_transaksi: 'TUNAI' as 'TUNAI' | 'HUTANG',
+    tanggal_transaksi: ''
   });
   const [editItems, setEditItems] = useState<{ id: string; nama: string; harga: number }[]>([]);
   const [newEditItem, setNewEditItem] = useState({ nama: '', harga: '' });
@@ -110,6 +127,26 @@ export default function BukuHutangPelanggan() {
     setLoading(false);
   }
 
+  // Handle auto-edit from URL param
+  useEffect(() => {
+    // Only run if we have an editId and we've finished loading initial data
+    if (editId && !loading && entries.length > 0 && !isEditing) {
+      console.log("Auto-editing transaction:", editId);
+      const target = entries.find(e => e.id === editId);
+      if (target) {
+        // Trigger the edit modal
+        handleEditClick(target);
+        
+        // Clean up the URL to prevent re-opening on manual refresh/back
+        const url = new URL(window.location.href);
+        url.searchParams.delete('editId');
+        window.history.replaceState({}, '', url.toString());
+      } else {
+        console.warn("Transaction for editId not found in current ledger entries.");
+      }
+    }
+  }, [editId, entries, loading, isEditing]);
+
   const handleDelete = async (trans: LedgerEntry) => {
     const isConfirmed = await confirm(
       `Hapus transaksi "${trans.catatan_barang}"?`,
@@ -120,21 +157,52 @@ export default function BukuHutangPelanggan() {
 
     setLoading(true);
     
-    // 1. If it was HUTANG, sync customer balance
-    if (trans.tipe_transaksi === 'HUTANG' && pelanggan) {
-      const newBalance = Math.max(0, (pelanggan.total_hutang_saat_ini || 0) - trans.total_harga);
-      await supabase
-        .from('pelanggan')
-        .update({ total_hutang_saat_ini: newBalance })
-        .eq('id', customerId);
-      
-      await supabase
-        .from('catatan_hutang')
-        .delete()
-        .eq('transaksi_id', trans.id);
-    }
+    // --- NEW: SYNC LOGIC FOR DELETION ---
+    if (pelanggan) {
+      if (trans.tipe_transaksi === 'HUTANG') {
+        // 1A. If deleting a DEBT: Reduce total balance
+        const newBalance = Math.max(0, (pelanggan.total_hutang_saat_ini || 0) - trans.total_harga);
+        await supabase.from('pelanggan').update({ total_hutang_saat_ini: newBalance }).eq('id', customerId);
+        await supabase.from('catatan_hutang').delete().eq('transaksi_id', trans.id);
+      } 
+      else if (trans.tipe_transaksi === 'TUNAI' && trans.catatan_barang?.toLowerCase().includes('bayar')) {
+        // 1B. If deleting a PAYMENT: Restore (Increase) total balance
+        const newBalance = (pelanggan.total_hutang_saat_ini || 0) + trans.total_harga;
+        await supabase.from('pelanggan').update({ total_hutang_saat_ini: newBalance }).eq('id', customerId);
 
-    // 2. Delete transaction
+        // 1C. Revert the "paid" status of individual debt records
+        // Process in reverse (LIFO - Last In First out for restoration)
+        const { data: recentDebts } = await supabase
+          .from('catatan_hutang')
+          .select('*')
+          .eq('pelanggan_id', customerId)
+          .gt('jumlah_bayar', 0)
+          .order('created_at', { ascending: false });
+
+        if (recentDebts) {
+          let amountToRestore = trans.total_harga;
+          for (const debt of recentDebts) {
+            if (amountToRestore <= 0) break;
+            
+            const canRevertAmount = debt.jumlah_bayar || 0;
+            const revertNow = Math.min(amountToRestore, canRevertAmount);
+            const newPaidAmount = canRevertAmount - revertNow;
+            
+            await supabase.from('catatan_hutang')
+              .update({ 
+                jumlah_bayar: newPaidAmount, 
+                status_lunas: false // Deleting a payment always means it's not fully lunas anymore
+              })
+              .eq('id', debt.id);
+            
+            amountToRestore -= revertNow;
+          }
+        }
+      }
+    }
+    // -------------------------------------
+
+    // 2. Delete transaction record finally
     const { error } = await supabase
       .from('transaksi')
       .delete()
@@ -230,7 +298,8 @@ export default function BukuHutangPelanggan() {
     setEditForm({
       total_harga: trans.total_harga.toString(),
       catatan_barang: trans.catatan_barang || '',
-      tipe_transaksi: trans.tipe_transaksi as 'TUNAI' | 'HUTANG'
+      tipe_transaksi: trans.tipe_transaksi as 'TUNAI' | 'HUTANG',
+      tanggal_transaksi: trans.tanggal_transaksi || new Date().toISOString().split('T')[0]
     });
     setEditItems(parseNotesToItems(trans.catatan_barang || ''));
     setIsEditing(true);
@@ -293,7 +362,8 @@ export default function BukuHutangPelanggan() {
     await supabase.from('transaksi').update({
        total_harga: newAmount,
        catatan_barang: editForm.catatan_barang,
-       tipe_transaksi: newTipe
+       tipe_transaksi: newTipe,
+       tanggal_transaksi: editForm.tanggal_transaksi
     }).eq('id', editingTrans.id);
 
     setIsEditing(false);
@@ -334,6 +404,50 @@ export default function BukuHutangPelanggan() {
     window.open(waUrl, '_blank');
   };
 
+  const handleResetBuku = async () => {
+    const isConfirmed = await confirm(
+      `Hapus SEMUA riwayat transaksi dan reset hutang ${pelanggan?.nama} menjadi Rp 0? Tindakan ini tidak bisa dibatalkan.`,
+      'Reset Buku Hutang',
+      'delete'
+    );
+    
+    if (!isConfirmed) return;
+
+    setLoading(true);
+    try {
+      // 1. Delete all transactions for this customer
+      const { error: tError } = await supabase
+        .from('transaksi')
+        .delete()
+        .eq('pelanggan_id', customerId);
+
+      if (tError) throw tError;
+
+      // 2. Delete all catatan_hutang for this customer
+      const { error: cError } = await supabase
+        .from('catatan_hutang')
+        .delete()
+        .eq('pelanggan_id', customerId);
+
+      if (cError) throw cError;
+
+      // 3. Reset total_hutang_saat_ini to 0
+      const { error: pError } = await supabase
+        .from('pelanggan')
+        .update({ total_hutang_saat_ini: 0 })
+        .eq('id', customerId);
+
+      if (pError) throw pError;
+
+      showToast('Buku hutang berhasil direset!', 'transaction');
+      fetchPelanggan();
+    } catch (error: any) {
+      showToast('Gagal mereset buku: ' + error.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredEntries = entries.filter(e => 
     e.catatan_barang?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -346,7 +460,7 @@ export default function BukuHutangPelanggan() {
   );
 
   return (
-    <div className="p-4 md:p-6 w-full flex flex-col h-full min-h-screen lg:h-screen overflow-y-auto lg:overflow-hidden lg:p-4">
+    <div className="w-full flex flex-col flex-1 min-h-0 lg:overflow-hidden">
       {/* Header section */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 landscape:gap-2 landscape:mb-3">
         <div className="flex items-center gap-4 landscape:gap-2">
@@ -393,6 +507,13 @@ export default function BukuHutangPelanggan() {
             <Printer size={20} className="landscape:w-4 landscape:h-4" />
             Cetak Rekap
           </Link>
+          <button 
+            onClick={handleResetBuku}
+            className="flex items-center gap-2 px-6 py-4 bg-red-600 text-white rounded-2xl font-black shadow-lg shadow-red-100 hover:bg-red-700 transition-all active:scale-95 landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-xs"
+          >
+            <RotateCcw size={20} className="landscape:w-4 landscape:h-4" />
+            Reset Buku
+          </button>
         </div>
       </header>
 
@@ -429,7 +550,7 @@ export default function BukuHutangPelanggan() {
            />
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar min-h-0">
           <table className="w-full text-left">
              <thead className="bg-gray-50/50">
                 <tr>
@@ -451,8 +572,8 @@ export default function BukuHutangPelanggan() {
                                 {isDebit ? <ArrowUpRight size={18} className="landscape:w-4 landscape:h-4" /> : <ArrowDownLeft size={18} className="landscape:w-4 landscape:h-4" />}
                              </div>
                              <div>
-                                <p className="text-xs font-black text-gray-800 uppercase landscape:text-[10px]">{format(new Date(e.created_at), 'EEEE', { locale: localeId })}</p>
-                                <p className="text-[10px] font-bold text-gray-400 landscape:text-[8px]">{format(new Date(e.created_at), 'dd MMM yyyy, HH:mm')}</p>
+                                <p className="text-xs font-black text-gray-800 uppercase landscape:text-[10px]">{format(new Date(e.tanggal_transaksi || e.created_at), 'EEEE', { locale: localeId })}</p>
+                                <p className="text-[10px] font-bold text-gray-400 landscape:text-[8px]">{format(new Date(e.tanggal_transaksi || e.created_at), 'dd MMM yyyy')}, {format(new Date(e.created_at), 'HH:mm')}</p>
                              </div>
                           </div>
                        </td>
@@ -530,6 +651,19 @@ export default function BukuHutangPelanggan() {
 
               <form onSubmit={handleUpdate} className="flex flex-col max-h-[calc(100vh-120px)] landscape:max-h-[calc(100vh-40px)]">
                  <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1 landscape:p-3 landscape:space-y-3">
+                    <div>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1.5 landscape:text-[8px] landscape:mb-1">Tanggal Transaksi</label>
+                        <div className="relative">
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-4 landscape:h-4" size={18} />
+                            <input
+                                type="date"
+                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-bold text-gray-700 landscape:pl-9 landscape:py-2 landscape:text-xs landscape:rounded-xl"
+                                value={editForm.tanggal_transaksi}
+                                onChange={(e) => setEditForm({ ...editForm, tanggal_transaksi: e.target.value })}
+                            />
+                        </div>
+                    </div>
+
                     <div>
                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3 landscape:text-[8px] landscape:mb-1.5">Tipe Transaksi</p>
                        <div className="grid grid-cols-2 gap-3 landscape:gap-1.5">

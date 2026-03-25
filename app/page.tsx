@@ -110,56 +110,56 @@ export default function Dashboard() {
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 landscape:grid-cols-3 gap-3 md:gap-6">
         {/* Kartu Total Hutang */}
-        <div className="bg-white p-4 rounded-3xl shadow-lg shadow-red-50/50 border border-red-50 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
+        <div className="bg-white p-3 md:p-4 rounded-2xl md:rounded-3xl shadow-lg shadow-red-50/50 border border-red-50 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
           <div className="z-10 relative">
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="p-1.5 bg-red-100 text-red-600 rounded-lg group-hover:rotate-12 transition-transform">
-                <AlertCircle size={14} />
+            <div className="flex items-center gap-1 mb-1 md:mb-2">
+              <div className="p-1 md:p-1.5 bg-red-100 text-red-600 rounded-lg group-hover:rotate-12 transition-transform">
+                <AlertCircle size={12} className="md:w-3.5 md:h-3.5" />
               </div>
-              <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Saldo Piutang</p>
+              <p className="text-[7px] md:text-[9px] text-gray-400 font-black uppercase tracking-widest">Saldo Piutang</p>
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-red-600 tracking-tighter">
+            <h3 className="text-base md:text-2xl font-black text-red-600 tracking-tighter">
               {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(stats.totalPiutang)}
             </h3>
-            <p className="text-[9px] text-red-300 font-bold mt-1 italic opacity-60">* Belum lunas</p>
+            <p className="text-[7px] md:text-[9px] text-red-300 font-bold mt-0.5 md:mt-1 italic opacity-60">* Belum lunas</p>
           </div>
-          <AlertCircle className="absolute -right-4 -bottom-4 text-red-50 opacity-40 group-hover:scale-110 transition-transform duration-700" size={100} />
+          <AlertCircle className="absolute -right-4 -bottom-4 text-red-50 opacity-40 group-hover:scale-110 transition-transform duration-700 w-16 h-16 md:w-24 md:h-24" />
         </div>
 
         {/* Kartu Pelanggan Aktif */}
-        <div className="bg-white p-4 rounded-3xl shadow-lg shadow-blue-50/50 border border-blue-50 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
+        <div className="bg-white p-3 md:p-4 rounded-2xl md:rounded-3xl shadow-lg shadow-blue-50/50 border border-blue-50 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
           <div className="z-10 relative">
-             <div className="flex items-center gap-1.5 mb-2">
-              <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg group-hover:rotate-12 transition-transform">
-                <Users size={14} />
+             <div className="flex items-center gap-1 mb-1 md:mb-2">
+              <div className="p-1 md:p-1.5 bg-blue-100 text-blue-600 rounded-lg group-hover:rotate-12 transition-transform">
+                <Users size={12} className="md:w-3.5 md:h-3.5" />
               </div>
-              <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Pelanggan Aktif</p>
+              <p className="text-[7px] md:text-[9px] text-gray-400 font-black uppercase tracking-widest">Pelanggan Aktif</p>
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-blue-600 tracking-tighter">
-              {stats.totalPelanggan} <span className="text-xs font-bold opacity-40 lowercase">orang</span>
+            <h3 className="text-base md:text-2xl font-black text-blue-600 tracking-tighter">
+              {stats.totalPelanggan} <span className="text-[10px] md:text-xs font-bold opacity-40 lowercase">orang</span>
             </h3>
-            <p className="text-[9px] text-blue-300 font-bold mt-1 italic opacity-60">* Member terdaftar</p>
+            <p className="text-[7px] md:text-[9px] text-blue-300 font-bold mt-0.5 md:mt-1 italic opacity-60">* Member terdaftar</p>
           </div>
-          <Users className="absolute -right-4 -bottom-4 text-blue-50 opacity-40 group-hover:scale-110 transition-transform duration-700" size={100} />
+          <Users className="absolute -right-4 -bottom-4 text-blue-50 opacity-40 group-hover:scale-110 transition-transform duration-700 w-16 h-16 md:w-24 md:h-24" />
         </div>
 
         {/* Kartu Tunai Hari Ini */}
-        <div className="bg-white p-4 rounded-3xl shadow-lg shadow-green-50/50 border border-green-50 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
+        <div className="bg-white p-3 md:p-4 rounded-2xl md:rounded-3xl shadow-lg shadow-green-50/50 border border-green-50 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-500">
           <div className="z-10 relative">
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="p-1.5 bg-green-100 text-green-600 rounded-lg group-hover:rotate-12 transition-transform">
-                <TrendingUp size={14} />
+            <div className="flex items-center gap-1 mb-1 md:mb-2">
+              <div className="p-1 md:p-1.5 bg-green-100 text-green-600 rounded-lg group-hover:rotate-12 transition-transform">
+                <TrendingUp size={12} className="md:w-3.5 md:h-3.5" />
               </div>
-              <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Kas Hari Ini</p>
+              <p className="text-[7px] md:text-[9px] text-gray-400 font-black uppercase tracking-widest">Kas Hari Ini</p>
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-green-600 tracking-tighter">
+            <h3 className="text-base md:text-2xl font-black text-green-600 tracking-tighter">
               {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(stats.transaksiHariIni)}
             </h3>
-            <p className="text-[9px] text-green-300 font-bold mt-1 italic opacity-60">* Pemasukan tunai</p>
+            <p className="text-[7px] md:text-[9px] text-green-300 font-bold mt-0.5 md:mt-1 italic opacity-60">* Pemasukan tunai</p>
           </div>
-          <TrendingUp className="absolute -right-4 -bottom-4 text-green-50 opacity-40 group-hover:scale-110 transition-transform duration-700" size={100} />
+          <TrendingUp className="absolute -right-4 -bottom-4 text-green-50 opacity-40 group-hover:scale-110 transition-transform duration-700 w-16 h-16 md:w-24 md:h-24" />
         </div>
       </div>
 
