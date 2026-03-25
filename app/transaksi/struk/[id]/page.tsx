@@ -257,9 +257,17 @@ export default function StrukPage() {
           <button 
             onClick={handleDownload}
             className="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 font-bold text-sm landscape:p-2 landscape:rounded-xl landscape:text-xs"
+            title="Simpan sebagai PDF"
           >
             <Download size={18} className="landscape:w-4 landscape:h-4" />
-            PDF
+          </button>
+          
+          <button 
+            onClick={handlePrint}
+            className="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 font-bold text-sm landscape:p-2 landscape:rounded-xl landscape:text-xs"
+            title="Cetak via Web/PDF"
+          >
+            <Printer size={18} className="landscape:w-4 landscape:h-4" />
           </button>
           
           {transaksi.pelanggan?.no_whatsapp && (
@@ -276,20 +284,12 @@ export default function StrukPage() {
           <button 
             onClick={handleBluetoothPrint}
             disabled={printingBluetooth}
-            className={`px-4 py-3 border border-blue-600 rounded-2xl font-black shadow-sm transition-all flex items-center gap-2 text-xs landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-[10px] ${
-              printingBluetooth ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white text-blue-600 hover:bg-blue-50 active:scale-95'
+            className={`px-6 py-3 text-white rounded-2xl font-black shadow-lg transition-all flex items-center gap-2 landscape:px-4 landscape:py-2 landscape:rounded-xl landscape:text-xs ${
+              printingBluetooth ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 shadow-blue-100 hover:bg-blue-700 active:scale-95'
             }`}
-            title="Cetak via Bluetooth Thermal"
+            title="Cetak Langsung via Bluetooth Thermal"
           >
-            {printingBluetooth ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
-            BT
-          </button>
-
-          <button 
-            onClick={handlePrint}
-            className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2 landscape:px-4 landscape:py-2 landscape:rounded-xl landscape:text-xs"
-          >
-            <Printer size={18} className="landscape:w-4 landscape:h-4" />
+            {printingBluetooth ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
             Cetak
           </button>
         </div>
