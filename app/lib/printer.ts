@@ -95,22 +95,84 @@ export class EscPosEncoder {
   }
 }
 
+// Common ESC/POS Service UUIDs for discovery
+const COMMON_PRINTER_SERVICES = [
+  '000018f0-0000-1000-8000-00805f9b34fb', // Printing Service
+  '0000ff00-0000-1000-8000-00805f9b34fb', // Common Thermal (RPP02N)
+  '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile
+  '49535343-fe7d-4ae5-8fa9-9fafd205e455'  // Microchip / Generic
+];
+
+// Common Write Characteristics
+const COMMON_WRITE_CHARS = [
+  '00002af1-0000-1000-8000-00805f9b34fb',
+  '0000ff02-0000-1000-8000-00805f9b34fb'
+];
+
 let connectedDevice: BluetoothDevice | null = null;
 let printerCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
 
+export function checkBluetoothSupport() {
+  if (!navigator.bluetooth) {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isHttps = window.location.protocol === 'https:';
+    
+    if (!isHttps && !isLocal) {
+      return { supported: false, reason: 'browser_security', message: 'Browser memblokir Bluetooth karena koneksi tidak aman (Bukan HTTPS).' };
+    }
+    return { supported: false, reason: 'not_supported', message: 'Browser Anda tidak mendukung Web Bluetooth.' };
+  }
+  return { supported: true };
+}
+
 export async function connectPrinter() {
   try {
+    // Broadening discovery: Search for RPP02N name or common print services
     const device = await navigator.bluetooth.requestDevice({
       filters: [
-        { services: ['0000ff00-0000-1000-8000-00805f9b34fb'] },
-        { name: 'RPP02N' }
+        { name: 'RPP02N' },
+        { services: ['0000ff00-0000-1000-8000-00805f9b34fb'] }
       ],
-      optionalServices: ['0000ff00-0000-1000-8000-00805f9b34fb']
+      optionalServices: COMMON_PRINTER_SERVICES
     });
 
     const server = await device.gatt?.connect();
-    const service = await server?.getPrimaryService('0000ff00-0000-1000-8000-00805f9b34fb');
-    const characteristic = await service?.getCharacteristic('0000ff02-0000-1000-8000-00805f9b34fb');
+    
+    // Attempt to find any known primary service
+    let service: any = null;
+    for (const serviceUuid of COMMON_PRINTER_SERVICES) {
+      try {
+        service = await server?.getPrimaryService(serviceUuid);
+        if (service) break;
+      } catch (e) {}
+    }
+
+    if (!service) {
+      // Fallback: try to get any service if literal ones fail
+      const services = await server?.getPrimaryServices();
+      service = services?.[0];
+    }
+
+    // Attempt to find any write characteristic
+    let characteristic: any = null;
+    if (service) {
+      for (const charUuid of COMMON_WRITE_CHARS) {
+        try {
+          characteristic = await service.getCharacteristic(charUuid);
+          if (characteristic) break;
+        } catch (e) {}
+      }
+      
+      if (!characteristic) {
+        // Fallback: try to find characteristic with "write" properties
+        const chars = await service.getCharacteristics();
+        characteristic = chars.find((c: any) => c.properties.write || c.properties.writeWithoutResponse);
+      }
+    }
+
+    if (!characteristic) {
+       throw new Error('Tidak dapat menemukan fitur cetak pada printer ini.');
+    }
 
     connectedDevice = device;
     printerCharacteristic = characteristic || null;
@@ -129,7 +191,7 @@ export async function connectPrinter() {
 
 export async function printData(data: Uint8Array) {
   if (!printerCharacteristic) {
-    throw new Error('Printer not connected');
+    throw new Error('Printer tidak terhubung.');
   }
 
   // Chunks to avoid MTU limits (standard is 20 bytes for some devices)

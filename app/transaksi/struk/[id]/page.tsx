@@ -7,7 +7,7 @@ import { supabase } from '@/app/lib/supabase';
 import { useNotification } from '@/app/components/NotificationProvider';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
-import { EscPosEncoder, connectPrinter, printData, isPrinterConnected } from '@/app/lib/printer';
+import { EscPosEncoder, connectPrinter, printData, isPrinterConnected, checkBluetoothSupport } from '@/app/lib/printer';
 
 interface Transaksi {
   id: string;
@@ -147,6 +147,20 @@ export default function StrukPage() {
   const handleBluetoothPrint = async () => {
     if (!transaksi) return;
     
+    // Check support first
+    const support = checkBluetoothSupport();
+    if (!support.supported) {
+      if (support.reason === 'browser_security') {
+        showModalAlert(
+          'Koneksi Bluetooth diblokir oleh browser karena Anda tidak menggunakan HTTPS (Koneksi Aman).\n\nTips untuk Mobile:\n1. Gunakan Localhost jika memungkinkan.\n2. Pastikan alamat website diawali https://',
+          'Keamanan Browser'
+        );
+      } else {
+        showModalAlert(support.message || 'Bluetooth tidak didukung.', 'Fitur Tidak Tersedia');
+      }
+      return;
+    }
+
     setPrintingBluetooth(true);
     try {
       // Connect if not already connected
@@ -213,7 +227,11 @@ export default function StrukPage() {
       await printData(encoder.getBuffer());
     } catch (error: any) {
       if (error.name !== 'NotFoundError' && error.name !== 'AbortError') {
-        showModalAlert('Gagal mencetak: ' + (error.message || 'Bluetooth Error'), 'Printer Error');
+        showModalAlert(
+          'Gagal mencetak: ' + (error.message || 'Bluetooth Error') + 
+          '\n\nTips:\n1. Pastikan Bluetooth HP menyala.\n2. Pastikan Printer menyala dan tidak terhubung ke HP lain.\n3. Matikan & nyalakan ulang printer.', 
+          'Gagal Cetak'
+        );
       }
     } finally {
       setPrintingBluetooth(false);
