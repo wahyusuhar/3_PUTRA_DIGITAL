@@ -2,11 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { Printer, ChevronLeft, Calendar, User, Download, FileText } from 'lucide-react';
+import { Printer, ChevronLeft, Calendar, User, Download, FileText, Loader2 } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase';
 import { useNotification } from '@/app/components/NotificationProvider';
 import { format, parseISO } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
+import { EscPosEncoder, connectPrinter, printData, isPrinterConnected, checkBluetoothSupport } from '@/app/lib/printer';
 
 interface Pelanggan {
   id: string;
@@ -40,6 +41,7 @@ export default function CetakRekapHutangPage() {
   const [pelanggan, setPelanggan] = useState<Pelanggan | null>(null);
   const [groupedDebts, setGroupedDebts] = useState<GroupedHutang[]>([]);
   const [loading, setLoading] = useState(true);
+  const [printingBluetooth, setPrintingBluetooth] = useState(false);
   const { showModalAlert } = useNotification();
 
   useEffect(() => {
@@ -113,6 +115,87 @@ export default function CetakRekapHutangPage() {
     window.print();
   };
 
+  const handleBluetoothPrint = async () => {
+    if (!pelanggan || groupedDebts.length === 0) return;
+    
+    const support = checkBluetoothSupport();
+    if (!support.supported) {
+      showModalAlert(support.message || 'Bluetooth tidak didukung.', 'Fitur Tidak Tersedia');
+      return;
+    }
+
+    setPrintingBluetooth(true);
+    try {
+      if (!isPrinterConnected()) {
+        await connectPrinter();
+      }
+
+      const encoder = new EscPosEncoder();
+      
+      encoder.initialize()
+        .alignCenter()
+        .size(1, 1)
+        .bold(true)
+        .line('REKAP HUTANG')
+        .size(0, 0)
+        .line('3 PUTRA DIGITAL')
+        .newline(1)
+        .alignLeft()
+        .line(`Pelanggan: ${pelanggan.nama}`)
+        .line(`Waktu Cetak: ${format(new Date(), 'dd-MM-yyyy HH:mm')}`)
+        .dashedLine();
+
+      groupedDebts.forEach(group => {
+        encoder.newline(1)
+          .bold(true)
+          .line(group.dateLabel.toUpperCase())
+          .bold(false);
+
+        group.items.forEach(item => {
+          const lines = (item.transaksi?.catatan_barang || 'Hutang').split(/,\s*/);
+          lines.forEach(line => {
+             if (line.trim()) encoder.line(line.trim());
+          });
+          
+          const sisa = item.jumlah_hutang - (item.jumlah_bayar || 0);
+          encoder.alignRight()
+            .line(`Rp ${new Intl.NumberFormat('id-ID').format(sisa)}`)
+            .alignLeft();
+        });
+
+        encoder.line('................................')
+          .text('Subtotal')
+          .alignRight()
+          .text(`Rp ${new Intl.NumberFormat('id-ID').format(group.subtotal)}`)
+          .newline(1)
+          .alignLeft();
+      });
+
+      encoder.newline(1)
+        .dashedLine()
+        .bold(true)
+        .size(1, 0)
+        .text('TOTAL PIUTANG')
+        .alignRight()
+        .text(`Rp ${new Intl.NumberFormat('id-ID').format(pelanggan.total_hutang_saat_ini)}`)
+        .size(0, 0)
+        .newline(2)
+        .alignCenter()
+        .bold(false)
+        .line('HARAP DISIMPAN SEBAGAI')
+        .line('BUKTI TAGIHAN SAH')
+        .newline(1)
+        .line('Software by Mas Wahyu')
+        .newline(4);
+
+      await printData(encoder.getBuffer());
+    } catch (error) {
+       console.error(error);
+    } finally {
+      setPrintingBluetooth(false);
+    }
+  };
+
   const handleDownload = () => {
     showModalAlert('Untuk menyimpan sebagai PDF:\n1. Jendela Cetak akan terbuka.\n2. Ubah "Tujuan" (Destination) menjadi "Simpan sebagai PDF" (Save as PDF).\n3. Klik Simpan.', 'Simpan PDF');
     setTimeout(() => {
@@ -149,11 +232,22 @@ export default function CetakRekapHutangPage() {
           </button>
           
           <button 
-            onClick={handlePrint}
-            className="p-3 bg-blue-600 border border-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all shadow-md shadow-blue-200 flex items-center gap-2 font-black text-sm landscape:p-2 landscape:rounded-xl landscape:text-xs"
+            onClick={handleBluetoothPrint}
+            disabled={printingBluetooth}
+            className={`px-4 py-3 text-white rounded-2xl font-black shadow-lg transition-all flex items-center gap-2 landscape:px-3 landscape:py-2 landscape:rounded-xl landscape:text-xs ${
+              printingBluetooth ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 shadow-green-100 hover:bg-green-700 active:scale-95'
+            }`}
           >
-            <Printer size={18} className="landscape:w-4 landscape:h-4" />
+            {printingBluetooth ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
             Cetak Rekap
+          </button>
+
+          <button 
+            onClick={handlePrint}
+            className="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 font-bold text-sm landscape:p-2 landscape:rounded-xl landscape:text-xs"
+          >
+            <FileText size={18} className="landscape:w-4 landscape:h-4" />
+            Web
           </button>
         </div>
       </div>

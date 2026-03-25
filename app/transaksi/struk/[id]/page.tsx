@@ -176,25 +176,21 @@ export default function StrukPage() {
 
       encoder.initialize()
         .alignCenter()
-        .size(1, 1) // Double size
+        .size(1, 1) // Double height & width
         .bold(true)
         .line('3 PUTRA DIGITAL')
-        .size(0, 0) // Normal size
+        .size(0, 0)
         .bold(false)
-        .line('SOLUSI CATAT HUTANG & KASIR')
+        .line('Solusi Hutang & Kasir')
         .newline(1)
         .alignLeft()
-        .line(`Tanggal: ${' '.repeat(15)}${date}`)
-        .line(`Waktu: ${' '.repeat(17)}${time} WIB`)
+        .line(`No: #${idStr}`)
+        .line(`Tgl: ${date} ${time}`)
         .dashedLine()
+        .line(`Pelanggan: ${nama}`)
         .newline(1)
-        .alignCenter()
-        .line(`PELANGGAN:  ${nama.toUpperCase()}`)
-        .line(`NO: #${idStr}`)
-        .newline(1)
-        .alignLeft()
         .bold(true)
-        .line('DETAIL PESANAN')
+        .line('PESANAN:')
         .bold(false);
 
       // Items split by comma
@@ -219,48 +215,35 @@ export default function StrukPage() {
         }
       });
 
-      encoder.line('________________________________') // Solid line
-        .newline(1)
+      encoder.line('--------------------------------')
         .bold(true)
-        .text('SUBTOTAL')
+        .text('TOTAL: ')
         .alignRight()
         .text(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.total_harga)}`)
-        .newline(1)
-        .alignLeft()
-        .newline(1)
-        .bold(true)
-        .size(1, 0) // Wider
-        .text('TOTAL')
-        .alignRight()
-        .text(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.total_harga)}`)
-        .size(0, 0)
         .newline(1)
         .alignLeft()
         .bold(false)
-        .newline(1)
-        .text('METODE')
+        .text('Metode: ')
         .alignRight()
         .text(transaksi.tipe_transaksi)
         .newline(1)
         .alignLeft()
-        .newline(1);
+        .dashedLine();
 
       if (transaksi.pelanggan) {
-        encoder.dashedLine()
-          .alignCenter()
-          .bold(true)
-          .line('SISA TOTAL HUTANG')
+        encoder.newline(1)
+          .line('SISA HUTANG:')
           .size(1, 1)
+          .bold(true)
           .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan?.total_hutang_saat_ini || 0)}`)
           .size(0, 0)
           .bold(false)
-          .alignLeft()
           .dashedLine();
       }
 
       encoder.newline(1)
         .alignCenter()
-        .line('TERIMA KASIH ATAS BELANJA ANDA')
+        .line('Terima Kasih!')
         .line('Software by Mas Wahyu')
         .newline(4); // Feed some paper
 

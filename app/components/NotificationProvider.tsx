@@ -32,7 +32,7 @@ export const useNotification = () => {
 const SOUNDS = {
   member: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3', // Soft welcome
   payment: '/sounds/notification-bayar.mp3', // Local custom sound
-  transaction: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3', // Confirm ding
+  transaction: '/sounds/notification-bayar.mp3', // Local custom sound
   error: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3', // Error blunt
   login: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3', // Tech success
   logout: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3', // Tech exit
@@ -66,7 +66,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     if (soundUrl) {
       const audio = new Audio(soundUrl);
-      audio.volume = 0.5;
+      audio.volume = 0.6; // Slightly louder
       audio.play().catch(e => console.log('Audio play failed:', e));
     }
   };
@@ -90,9 +90,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
     
+    // Play sound for all success/transaction types
+    if (['payment', 'transaction', 'success', 'member'].includes(type)) {
+      playSound(type);
+    }
+
     if (voiceText) {
-      speak(voiceText);
-    } else {
+      // Delay speech slightly so it doesn't overlap too much with the start of the sound
+      setTimeout(() => {
+        speak(voiceText);
+      }, 300);
+    } else if (!['payment', 'transaction', 'success', 'member'].includes(type)) {
+      // For other types (error, etc) without voiceText, play their normal sound
       playSound(type);
     }
 

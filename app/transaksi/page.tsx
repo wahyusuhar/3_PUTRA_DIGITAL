@@ -169,33 +169,33 @@ function TransaksiContent() {
 
   return (
     <div className="w-full flex flex-col flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 md:p-6">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 landscape:mb-2">
         <div>
-          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">Transaksi Baru</h1>
-          <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-widest opacity-60">Catat penjualan harian dengan mudah.</p>
+          <h1 className="text-lg md:text-2xl font-black text-gray-800 tracking-tight landscape:text-base">Transaksi Baru</h1>
+          <p className="text-[8px] md:text-xs text-gray-500 font-bold uppercase tracking-widest opacity-60 landscape:hidden">Catat penjualan harian dengan mudah.</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/transaksi/bayar" className="bg-red-50 p-2.5 rounded-xl border border-red-100 flex items-center gap-2 hover:bg-red-100 transition-colors group">
-            <Calculator className="text-red-600 group-hover:scale-110 transition-transform" size={16} />
-            <p className="text-red-700 font-bold whitespace-nowrap text-xs">Bayar Hutang</p>
+          <Link href="/transaksi/bayar" className="bg-red-50 p-2 rounded-xl border border-red-100 flex items-center gap-1.5 hover:bg-red-100 transition-colors group landscape:p-1.5">
+            <Calculator className="text-red-600 group-hover:scale-110 transition-transform landscape:w-3 landscape:h-3" size={14} />
+            <p className="text-red-700 font-bold whitespace-nowrap text-[10px] landscape:text-[9px]">Bayar Hutang</p>
           </Link>
-          <Link href="/laporan" className="bg-blue-50 p-2.5 rounded-xl border border-blue-100 flex items-center gap-2 hover:bg-blue-100 transition-colors group">
-            <History className="text-blue-600 group-hover:rotate-12 transition-transform" size={16} />
-            <p className="text-blue-700 font-bold tracking-tight text-xs">Riwayat</p>
+          <Link href="/laporan" className="bg-blue-50 p-2 rounded-xl border border-blue-100 flex items-center gap-1.5 hover:bg-blue-100 transition-colors group landscape:p-1.5">
+            <History className="text-blue-600 group-hover:rotate-12 transition-transform landscape:w-3 landscape:h-3" size={14} />
+            <p className="text-blue-700 font-bold tracking-tight text-[10px] landscape:text-[9px]">Riwayat</p>
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 landscape:gap-3">
-        <div className="space-y-6 landscape:space-y-2">
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 landscape:p-3 landscape:rounded-2xl">
-            <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider landscape:text-[10px] landscape:mb-2">Langkah 1: Cari Pelanggan</label>
-            <div className="relative mb-4 landscape:mb-2">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-4 landscape:h-4 landscape:left-3" size={20} />
+      <div className="grid grid-cols-1 md:grid-cols-2 landscape:grid-cols-2 gap-4 md:gap-8 landscape:gap-3">
+        <div className="space-y-4 md:space-y-6 landscape:space-y-2">
+          <div className="bg-white p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 landscape:p-2.5 landscape:rounded-xl">
+            <label className="block text-[10px] font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[8px] landscape:mb-1">Langkah 1: Cari Pelanggan</label>
+            <div className="relative mb-3 landscape:mb-1.5">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-3 landscape:h-3 landscape:left-2" size={16} />
               <input
                 type="text"
                 placeholder="Ketik nama pelanggan..."
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold landscape:pl-9 landscape:pr-3 landscape:py-2 landscape:text-xs landscape:rounded-xl"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-xs landscape:pl-7 landscape:py-1.5 landscape:text-[10px]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -212,7 +212,7 @@ function TransaksiContent() {
                     setSearchTerm('');
                     setPelangganList([]);
                   }}
-                  className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all border landscape:p-2 landscape:rounded-xl ${
+                  className={`w-full flex items-center justify-between p-3 rounded-xl transition-all border landscape:p-1.5 landscape:rounded-lg ${
                     selectedPelanggan?.id === p.id 
                     ? 'bg-blue-600 text-white border-blue-600' 
                     : 'bg-white text-gray-700 border-gray-100 hover:bg-gray-50'
@@ -228,9 +228,9 @@ function TransaksiContent() {
             </div>
 
             {selectedPelanggan && (
-              <div className="mt-6 p-5 bg-blue-50 rounded-2xl border border-blue-100 landscape:mt-2 landscape:p-3 landscape:rounded-xl">
-                <p className="text-xs text-blue-600 font-bold uppercase mb-1 landscape:text-[8px] landscape:mb-0">Pelanggan Terpilih</p>
-                <p className="text-xl font-black text-blue-900 landscape:text-sm">{selectedPelanggan.nama}</p>
+              <div className="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-100 landscape:mt-1.5 landscape:p-2 landscape:rounded-lg">
+                <p className="text-[8px] text-blue-600 font-bold uppercase mb-0.5 landscape:text-[7px] landscape:mb-0">Pelanggan Terpilih</p>
+                <p className="text-base font-black text-blue-900 landscape:text-xs">{selectedPelanggan.nama}</p>
                 <div className="mt-2 pt-2 border-t border-blue-200 landscape:mt-1 landscape:pt-1">
                   <p className="text-xs text-blue-600 font-bold uppercase landscape:text-[8px]">Hutang Saat Ini</p>
                   <p className="text-lg font-black text-red-600 landscape:text-xs">
@@ -243,28 +243,26 @@ function TransaksiContent() {
         </div>
 
         <div>
-          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 space-y-6 landscape:p-3 landscape:rounded-2xl landscape:space-y-3">
-            <h3 className="text-lg font-black text-gray-800 border-b pb-4 landscape:text-sm landscape:pb-2 uppercase tracking-tight">Opsi Transaksi</h3>
+          <form onSubmit={handleSubmit} className="bg-white p-4 md:p-6 rounded-2xl md:rounded-[2.5rem] shadow-xl border border-gray-100 space-y-4 md:space-y-6 landscape:p-3 landscape:rounded-2xl landscape:space-y-2">
+            <h3 className="text-base font-black text-gray-800 border-b pb-3 landscape:text-xs landscape:pb-1.5 uppercase tracking-tight">Opsi Transaksi</h3>
             
             {/* Transaction Date Selector */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Tanggal Transaksi</label>
+              <label className="block text-[10px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider landscape:text-[8px] landscape:mb-0.5">Tanggal Transaksi</label>
               <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-4 landscape:h-4" size={18} />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-3 landscape:h-3" size={14} />
                 <input
                   type="date"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-bold text-gray-700 landscape:pl-9 landscape:py-2 landscape:text-xs landscape:rounded-xl"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-bold text-gray-700 text-xs landscape:pl-7 landscape:py-1 landscape:text-[10px]"
                   value={formData.tanggal_transaksi}
                   onChange={(e) => setFormData({ ...formData, tanggal_transaksi: e.target.value })}
                 />
               </div>
             </div>
 
-            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Metode Pembayaran</label>
-            
             <div>
-              <p className="text-sm font-bold text-gray-500 mb-3 landscape:text-[10px] landscape:mb-1">Metode Pembayaran</p>
-              <div className="grid grid-cols-2 gap-3 landscape:gap-1.5">
+              <p className="text-[10px] font-bold text-gray-500 mb-2 landscape:text-[8px] landscape:mb-0.5 uppercase tracking-wider">Metode Pembayaran</p>
+              <div className="grid grid-cols-2 gap-2 landscape:gap-1">
                 {[
                   { id: 'cash', label: 'Cash / Tunai', icon: Banknote, color: 'green' },
                   { id: 'hutang', label: 'Hutang / Kasbon', icon: Calculator, color: 'red' }
@@ -273,26 +271,26 @@ function TransaksiContent() {
                     key={m.id}
                     type="button"
                     onClick={() => setFormData({ ...formData, metode: m.id })}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all landscape:flex-row landscape:justify-center landscape:p-2 landscape:rounded-xl landscape:gap-1 ${
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all landscape:flex-row landscape:justify-center landscape:p-1.5 landscape:rounded-lg landscape:gap-1 ${
                       formData.metode === m.id
                         ? `border-${m.color === 'green' ? 'green' : 'red'}-500 bg-${m.color === 'green' ? 'green' : 'red'}-50 text-${m.color === 'green' ? 'green' : 'red'}-700`
                         : 'border-gray-50 bg-gray-50 text-gray-400 hover:border-gray-200'
                     }`}
                   >
-                    <m.icon size={24} className="landscape:w-4 landscape:h-4" />
-                    <span className="font-bold text-xs uppercase landscape:text-[8px]">{m.label}</span>
+                    <m.icon size={20} className="landscape:w-3 landscape:h-3" />
+                    <span className="font-black text-[10px] uppercase landscape:text-[8px]">{m.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="border-b border-gray-100 pb-4 mb-2">
-              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider landscape:text-[10px] landscape:mb-1">Input Item Barang</label>
+            <div className="border-b border-gray-100 pb-3 mb-1">
+              <label className="block text-[10px] font-bold text-gray-700 mb-1.5 uppercase tracking-wider landscape:text-[8px] landscape:mb-0.5">Input Item Barang</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Nama Barang..."
-                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:py-2 landscape:text-xs"
+                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold text-xs landscape:py-1.5 landscape:text-[10px]"
                   value={newItem.nama}
                   onChange={(e) => setNewItem({ ...newItem, nama: e.target.value })}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}
@@ -300,7 +298,7 @@ function TransaksiContent() {
                 <input
                   type="number"
                   placeholder="Harga"
-                  className="w-24 md:w-32 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:py-2 landscape:text-xs"
+                  className="w-20 md:w-32 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 text-xs landscape:py-1.5 landscape:text-[10px]"
                   value={newItem.harga}
                   onChange={(e) => setNewItem({ ...newItem, harga: e.target.value })}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}
@@ -308,9 +306,9 @@ function TransaksiContent() {
                 <button
                   type="button"
                   onClick={addItem}
-                  className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100"
+                  className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100 landscape:p-1.5"
                 >
-                  <Plus size={20} />
+                  <Plus size={16} />
                 </button>
               </div>
             </div>
@@ -344,12 +342,12 @@ function TransaksiContent() {
               )}
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <div className="flex justify-between items-end mb-1">
-                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Otomatis</label>
-                 <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Rp</span>
+                 <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Otomatis</label>
+                 <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Rp</span>
               </div>
-              <div className="w-full px-5 py-3 bg-blue-50 border border-blue-100 rounded-2xl font-black text-3xl text-blue-700 text-right shadow-inner landscape:text-xl landscape:py-2">
+              <div className="w-full px-4 py-2 bg-blue-50 border border-blue-100 rounded-xl font-black text-2xl text-blue-700 text-right shadow-inner landscape:text-lg landscape:py-1">
                 {formData.total_harga ? Number(formData.total_harga).toLocaleString() : '0'}
               </div>
             </div>
@@ -357,7 +355,7 @@ function TransaksiContent() {
             <button
               type="submit"
               disabled={loading || !selectedPelanggan}
-              className={`w-full flex items-center justify-center gap-3 py-5 rounded-2xl font-black text-xl shadow-lg transition-all active:scale-95 landscape:py-2.5 landscape:text-sm landscape:rounded-xl landscape:gap-1.5 ${
+              className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-base shadow-lg transition-all active:scale-95 landscape:py-2 landscape:text-xs landscape:rounded-lg landscape:gap-1 ${
                 !selectedPelanggan 
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                 : 'bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700'
@@ -365,12 +363,12 @@ function TransaksiContent() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin landscape:w-4 landscape:h-4" size={24} />
+                  <Loader2 className="animate-spin landscape:w-3 landscape:h-3" size={18} />
                   Memproses...
                 </>
               ) : (
                 <>
-                  <Save size={24} className="landscape:w-4 landscape:h-4" />
+                  <Save size={18} className="landscape:w-3 landscape:h-3" />
                   Simpan Transaksi
                 </>
               )}
