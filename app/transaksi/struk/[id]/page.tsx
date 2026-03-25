@@ -261,7 +261,7 @@ export default function StrukPage() {
       encoder.newline(1)
         .alignCenter()
         .line('TERIMA KASIH ATAS BELANJA ANDA')
-        .line('Software by Digital Store System')
+        .line('Software by Mas Wahyu')
         .newline(4); // Feed some paper
 
       await printData(encoder.getBuffer());
@@ -459,7 +459,7 @@ export default function StrukPage() {
 
         <div className="text-center space-y-2 border-t border-gray-100 pt-8 mt-4">
            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Terima Kasih Atas Belanja Anda</p>
-           <p className="text-[8px] font-bold text-gray-300 italic">Software by Digital Store System</p>
+           <p className="text-[8px] font-bold text-gray-300 italic">Software by Mas Wahyu</p>
         </div>
 
       </div>

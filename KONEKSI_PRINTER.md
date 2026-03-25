@@ -49,4 +49,4 @@ Jika printer tidak terdeteksi atau gagal mencetak:
 - **Fitur Otomatis**: Cetak Sisa Hutang Pelanggan (jika ada).
 
 ---
-*Dikembangkan oleh Digital Store System*
+*Dikembangkan oleh Mas Wahyu*
