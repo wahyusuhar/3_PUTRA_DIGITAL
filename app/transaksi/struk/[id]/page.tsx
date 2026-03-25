@@ -109,7 +109,7 @@ export default function StrukPage() {
     }
 
     const isPayment = transaksi.tipe_transaksi === 'TUNAI' && transaksi.catatan_barang.toLowerCase().includes('bayar');
-    const prevBalance = transaksi.pelanggan?.total_hutang_saat_ini + transaksi.total_harga;
+    const prevBalance = (transaksi.pelanggan?.total_hutang_saat_ini || 0) + transaksi.total_harga;
     
     const formattedTotal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.total_harga);
     const formattedSisa = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(transaksi.pelanggan?.total_hutang_saat_ini || 0);
@@ -198,7 +198,7 @@ export default function StrukPage() {
         .bold(false);
 
       // Items split by comma
-      const items = transaksi.catatan_barang.split(',');
+      const items = (transaksi.catatan_barang || "").split(',');
       items.forEach(item => {
         const cleanItem = item.trim();
         if (cleanItem) {
@@ -251,7 +251,7 @@ export default function StrukPage() {
           .bold(true)
           .line('SISA TOTAL HUTANG')
           .size(1, 1)
-          .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan.total_hutang_saat_ini)}`)
+          .line(`Rp ${new Intl.NumberFormat('id-ID').format(transaksi.pelanggan?.total_hutang_saat_ini || 0)}`)
           .size(0, 0)
           .bold(false)
           .alignLeft()
@@ -265,10 +265,11 @@ export default function StrukPage() {
         .newline(4); // Feed some paper
 
       await printData(encoder.getBuffer());
-    } catch (error: any) {
-      if (error.name !== 'NotFoundError' && error.name !== 'AbortError') {
+    } catch (error) {
+      const err = error as any;
+      if (err.name !== 'NotFoundError' && err.name !== 'AbortError') {
         showModalAlert(
-          'Gagal mencetak: ' + (error.message || 'Bluetooth Error') + 
+          'Gagal mencetak: ' + (err.message || 'Bluetooth Error') + 
           '\n\nTips:\n1. Pastikan Bluetooth HP menyala.\n2. Pastikan Printer menyala dan tidak terhubung ke HP lain.\n3. Matikan & nyalakan ulang printer.', 
           'Gagal Cetak'
         );
