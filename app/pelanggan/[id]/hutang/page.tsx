@@ -633,155 +633,153 @@ function BukuHutangContent() {
              Tidak ada riwayat hutang/pembayaran yang sesuai.
           </div>
         )}
-      </div>
-
-      {/* Edit Transaction Modal */}
+      </div>      {/* Edit Transaction Modal */}
       {isEditing && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-           <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 landscape:max-w-lg landscape:rounded-xl">
-              <div className="p-6 border-b flex justify-between items-center bg-gray-50/50 landscape:p-3">
-                 <div>
-                    <h3 className="text-xl font-black text-gray-800 landscape:text-sm">Edit Transaksi</h3>
-                    <p className="text-xs font-bold text-gray-400 landscape:text-[10px]">ID: {editingTrans?.id.split('-')[0].toUpperCase()}</p>
-                 </div>
-                 <button onClick={() => setIsEditing(false)} className="p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-xl transition-all landscape:p-1.5 landscape:rounded-lg">
-                    <X size={24} className="landscape:w-4 landscape:h-4" />
-                 </button>
-              </div>
+            <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 landscape:max-w-lg landscape:rounded-xl">
+               <div className="p-4 border-b flex justify-between items-center bg-gray-50/50 landscape:p-2">
+                  <div>
+                     <h3 className="text-lg font-black text-gray-800 landscape:text-xs">Edit Transaksi</h3>
+                     <p className="text-[10px] font-bold text-gray-400 landscape:text-[8px]">ID: {editingTrans?.id.split('-')[0].toUpperCase()}</p>
+                  </div>
+                  <button onClick={() => setIsEditing(false)} className="p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-xl transition-all landscape:p-1.5 landscape:rounded-lg">
+                     <X size={20} className="landscape:w-4 landscape:h-4" />
+                  </button>
+               </div>
 
-              <form onSubmit={handleUpdate} className="flex flex-col max-h-[calc(100vh-120px)] landscape:max-h-[calc(100vh-40px)]">
-                 <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1 landscape:p-3 landscape:space-y-3">
-                    <div>
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1.5 landscape:text-[8px] landscape:mb-1">Tanggal Transaksi</label>
-                        <div className="relative">
-                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-4 landscape:h-4" size={18} />
-                            <input
-                                type="date"
-                                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-bold text-gray-700 landscape:pl-9 landscape:py-2 landscape:text-xs landscape:rounded-xl"
-                                value={editForm.tanggal_transaksi}
-                                onChange={(e) => setEditForm({ ...editForm, tanggal_transaksi: e.target.value })}
-                            />
+               <form onSubmit={handleUpdate} className="flex flex-col max-h-[calc(100vh-100px)] landscape:max-h-[calc(100vh-40px)]">
+                  <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar flex-1 landscape:p-2 landscape:space-y-2">
+                     <div>
+                         <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest block mb-1 landscape:text-[7px]">Tanggal Transaksi</label>
+                         <div className="relative">
+                             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 landscape:w-3 landscape:h-3" size={14} />
+                             <input
+                                 type="date"
+                                 className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-bold text-gray-700 landscape:pl-8 landscape:py-1 landscape:text-[10px]"
+                                 value={editForm.tanggal_transaksi}
+                                 onChange={(e) => setEditForm({ ...editForm, tanggal_transaksi: e.target.value })}
+                             />
+                         </div>
+                     </div>
+
+                     <div>
+                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-2 landscape:text-[7px] landscape:mb-1">Tipe Transaksi</p>
+                        <div className="grid grid-cols-2 gap-2 landscape:gap-1">
+                           <button 
+                              type="button"
+                              onClick={() => setEditForm({ ...editForm, tipe_transaksi: 'TUNAI' })}
+                              className={`p-3 rounded-xl border-2 font-black text-xs flex items-center justify-center gap-1.5 transition-all landscape:p-1.5 landscape:rounded-lg landscape:text-[9px] landscape:gap-1 ${
+                                 editForm.tipe_transaksi === 'TUNAI' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-50 bg-gray-50 text-gray-400'
+                              }`}
+                           >
+                              <ArrowUpRight size={16} className="landscape:w-3 landscape:h-3" />
+                              PEMBAYARAN
+                           </button>
+                           <button 
+                              type="button"
+                              onClick={() => setEditForm({ ...editForm, tipe_transaksi: 'HUTANG' })}
+                              className={`p-3 rounded-xl border-2 font-black text-xs flex items-center justify-center gap-1.5 transition-all landscape:p-1.5 landscape:rounded-lg landscape:text-[9px] landscape:gap-1 ${
+                                 editForm.tipe_transaksi === 'HUTANG' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-50 bg-gray-50 text-gray-400'
+                              }`}
+                           >
+                              <ArrowDownLeft size={16} className="landscape:w-3 landscape:h-3" />
+                              HUTANG
+                           </button>
                         </div>
-                    </div>
+                     </div>
 
-                    <div>
-                       <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3 landscape:text-[8px] landscape:mb-1.5">Tipe Transaksi</p>
-                       <div className="grid grid-cols-2 gap-3 landscape:gap-1.5">
-                          <button 
-                             type="button"
-                             onClick={() => setEditForm({ ...editForm, tipe_transaksi: 'TUNAI' })}
-                             className={`p-4 rounded-2xl border-2 font-black text-sm flex items-center justify-center gap-2 transition-all landscape:p-2 landscape:rounded-lg landscape:text-[10px] landscape:gap-1 ${
-                                editForm.tipe_transaksi === 'TUNAI' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-50 bg-gray-50 text-gray-400'
-                             }`}
-                          >
-                             <ArrowUpRight size={18} className="landscape:w-4 landscape:h-4" />
-                             PEMBAYARAN
-                          </button>
-                          <button 
-                             type="button"
-                             onClick={() => setEditForm({ ...editForm, tipe_transaksi: 'HUTANG' })}
-                             className={`p-4 rounded-2xl border-2 font-black text-sm flex items-center justify-center gap-2 transition-all landscape:p-2 landscape:rounded-lg landscape:text-[10px] landscape:gap-1 ${
-                                editForm.tipe_transaksi === 'HUTANG' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-50 bg-gray-50 text-gray-400'
-                             }`}
-                          >
-                             <ArrowDownLeft size={18} className="landscape:w-4 landscape:h-4" />
-                             HUTANG
-                          </button>
-                       </div>
-                    </div>
+                     <div className="border-b border-gray-100 pb-3 mb-1">
+                        <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest block mb-1 landscape:text-[7px]">Tambah/Input Barang</label>
+                        <div className="flex gap-2">
+                            <input
+                               type="text"
+                               placeholder="Nama Barang..."
+                               className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold text-xs"
+                               value={newEditItem.nama}
+                               onChange={(e) => setNewEditItem({ ...newEditItem, nama: e.target.value })}
+                               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
+                            />
+                            <input
+                               type="number"
+                               placeholder="Harga"
+                               className="w-20 p-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 text-xs"
+                               value={newEditItem.harga}
+                               onChange={(e) => setNewEditItem({ ...newEditItem, harga: e.target.value })}
+                               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
+                            />
+                           <button
+                              type="button"
+                              onClick={addEditItem}
+                              className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100"
+                           >
+                              <Plus size={16} />
+                           </button>
+                        </div>
+                     </div>
 
-                    <div className="border-b border-gray-100 pb-4 mb-2">
-                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1.5 landscape:text-[8px] landscape:mb-1">Tambah/Input Barang</label>
-                       <div className="flex gap-2">
-                           <input
-                              type="text"
-                              placeholder="Nama Barang..."
-                              className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold landscape:p-1.5 landscape:text-xs"
-                              value={newEditItem.nama}
-                              onChange={(e) => setNewEditItem({ ...newEditItem, nama: e.target.value })}
-                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
-                           />
-                           <input
-                              type="number"
-                              placeholder="Harga"
-                              className="w-24 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-blue-600 landscape:p-1.5 landscape:text-xs"
-                              value={newEditItem.harga}
-                              onChange={(e) => setNewEditItem({ ...newEditItem, harga: e.target.value })}
-                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEditItem())}
-                           />
-                          <button
-                             type="button"
-                             onClick={addEditItem}
-                             className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-100"
-                          >
-                             <Plus size={18} />
-                          </button>
-                       </div>
-                    </div>
+                     <div className="bg-gray-50 rounded-xl p-3 min-h-[120px] max-h-[250px] overflow-y-auto border border-gray-100 landscape:p-2 landscape:min-h-[80px] landscape:max-h-[120px]">
+                        <div className="flex items-center gap-2 mb-2 border-b border-gray-200 pb-1.5 landscape:mb-1 landscape:pb-1">
+                           <ShoppingCart size={12} className="text-gray-400" />
+                           <h4 className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Daftar Barang ({editItems.length})</h4>
+                        </div>
+                        
+                        {editItems.length === 0 ? (
+                           <p className="text-center py-6 text-gray-400 font-bold italic text-[10px] landscape:py-2">Belum ada barang</p>
+                        ) : (
+                           <div className="space-y-1.5">
+                              {editItems.map(item => (
+                                 <div key={item.id} className="flex gap-2 items-center bg-white p-2 rounded-xl border border-gray-100 shadow-sm transition-all hover:border-blue-200 landscape:p-1.5">
+                                    <input 
+                                       type="text"
+                                       className="flex-1 font-bold text-gray-800 text-xs outline-none bg-transparent"
+                                       value={item.nama}
+                                       onChange={(e) => updateEditItem(item.id, 'nama', e.target.value)}
+                                    />
+                                    <div className="flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded-lg">
+                                       <span className="text-[9px] font-black text-blue-400">Rp</span>
+                                       <input 
+                                          type="number"
+                                          className="w-14 font-black text-blue-600 text-[10px] outline-none bg-transparent text-right"
+                                          value={item.harga}
+                                          onChange={(e) => updateEditItem(item.id, 'harga', e.target.value)}
+                                       />
+                                    </div>
+                                    <button
+                                       type="button"
+                                       onClick={() => removeEditItem(item.id)}
+                                       className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-all"
+                                    >
+                                       <Trash2 size={12} />
+                                    </button>
+                                 </div>
+                              ))}
+                           </div>
+                        )}
+                     </div>
 
-                    <div className="bg-gray-50 rounded-2xl p-4 min-h-[150px] max-h-[300px] overflow-y-auto border border-gray-100 landscape:p-2 landscape:min-h-[100px] landscape:max-h-[150px]">
-                       <div className="flex items-center gap-2 mb-3 border-b border-gray-200 pb-2 landscape:mb-1 landscape:pb-1">
-                          <ShoppingCart size={14} className="text-gray-400" />
-                          <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Daftar Barang ({editItems.length})</h4>
-                       </div>
-                       
-                       {editItems.length === 0 ? (
-                          <p className="text-center py-10 text-gray-400 font-bold italic text-xs landscape:py-4">Belum ada barang</p>
-                       ) : (
-                          <div className="space-y-2">
-                             {editItems.map(item => (
-                                <div key={item.id} className="flex gap-2 items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm transition-all hover:border-blue-200 landscape:p-2 landscape:rounded-lg">
-                                   <input 
-                                      type="text"
-                                      className="flex-1 font-bold text-gray-800 text-sm outline-none bg-transparent landscape:text-xs"
-                                      value={item.nama}
-                                      onChange={(e) => updateEditItem(item.id, 'nama', e.target.value)}
-                                   />
-                                   <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
-                                      <span className="text-[10px] font-black text-blue-400">Rp</span>
-                                      <input 
-                                         type="number"
-                                         className="w-16 font-black text-blue-600 text-[11px] outline-none bg-transparent text-right"
-                                         value={item.harga}
-                                         onChange={(e) => updateEditItem(item.id, 'harga', e.target.value)}
-                                      />
-                                   </div>
-                                   <button
-                                      type="button"
-                                      onClick={() => removeEditItem(item.id)}
-                                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-all"
-                                   >
-                                      <Trash2 size={14} />
-                                   </button>
-                                </div>
-                             ))}
-                          </div>
-                       )}
-                    </div>
+                     <div>
+                        <div className="flex justify-between items-end mb-1">
+                           <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Total Otomatis</label>
+                           <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Rp</span>
+                        </div>
+                        <div className="w-full p-3 bg-blue-50 border border-blue-100 rounded-xl font-black text-2xl text-blue-700 text-right shadow-inner landscape:text-lg landscape:p-1.5">
+                           {Number(editForm.total_harga).toLocaleString()}
+                        </div>
+                     </div>
+                  </div>
 
-                    <div>
-                       <div className="flex justify-between items-end mb-1">
-                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Otomatis</label>
-                          <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Rp</span>
-                       </div>
-                       <div className="w-full p-4 bg-blue-50 border border-blue-100 rounded-2xl font-black text-3xl text-blue-700 text-right shadow-inner landscape:text-xl landscape:p-2">
-                          {Number(editForm.total_harga).toLocaleString()}
-                       </div>
-                    </div>
-                 </div>
-
-                 <div className="p-6 border-t bg-gray-50/50 landscape:p-3">
-                    <button 
-                       type="submit" 
-                       disabled={submitting}
-                       className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 landscape:py-2.5 landscape:text-sm landscape:rounded-lg landscape:gap-1.5"
-                    >
-                       {submitting ? <Loader2 className="animate-spin landscape:w-4 landscape:h-4" /> : <Save size={20} className="landscape:w-4 landscape:h-4" />}
-                       Simpan Perubahan
-                    </button>
-                 </div>
-              </form>
-           </div>
+                  <div className="p-4 border-t bg-gray-50/50 landscape:p-2">
+                     <button 
+                        type="submit" 
+                        disabled={submitting}
+                        className="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-base shadow-xl shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 landscape:py-2 landscape:text-xs landscape:rounded-lg landscape:gap-1.5"
+                     >
+                        {submitting ? <Loader2 className="animate-spin" size={16} /> : <Save size={18} />}
+                        Simpan Perubahan
+                     </button>
+                  </div>
+               </form>
+            </div>
         </div>
       )}
 

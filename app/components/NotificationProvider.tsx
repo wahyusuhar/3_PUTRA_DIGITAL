@@ -31,7 +31,7 @@ export const useNotification = () => {
 // Sound URLs
 const SOUNDS = {
   member: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3', // Soft welcome
-  payment: 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3', // Cha-ching shimmer
+  payment: '/sounds/notification-bayar.mp3', // Local custom sound
   transaction: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3', // Confirm ding
   error: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3', // Error blunt
   login: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3', // Tech success

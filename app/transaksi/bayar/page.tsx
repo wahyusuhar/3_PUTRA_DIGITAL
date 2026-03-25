@@ -184,20 +184,20 @@ function BayarHutangContent() {
 
   return (
     <div className="w-full flex flex-col flex-1 h-screen overflow-hidden bg-gray-50/30">
-      <div className="p-4 md:p-6 flex items-center gap-4 shrink-0 bg-white border-b">
-        <Link href="/transaksi" className="p-2 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"><ChevronLeft size={20}/></Link>
-        <h1 className="text-xl md:text-2xl font-black text-gray-800">Bayar Hutang</h1>
+      <div className="p-3 md:p-6 flex items-center gap-4 shrink-0 bg-white border-b landscape:p-2 landscape:gap-2">
+        <Link href="/transaksi" className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors landscape:p-1"><ChevronLeft size={18}/></Link>
+        <h1 className="text-lg md:text-2xl font-black text-gray-800 landscape:text-base">Bayar Hutang</h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2 md:p-6 custom-scrollbar">
-        <div className="grid grid-cols-1 lg:grid-cols-2 landscape:grid-cols-2 gap-3 md:gap-6">
+      <div className="flex-1 overflow-y-auto p-2 md:p-6 custom-scrollbar landscape:p-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 landscape:grid-cols-2 gap-2 md:gap-6">
           
-          <div className="space-y-3 md:space-y-6">
-            <div className="bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl shadow-sm border border-gray-100">
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Cari Pelanggan</label>
+          <div className="space-y-2 md:space-y-6">
+            <div className="bg-white p-2 md:p-5 rounded-xl md:rounded-3xl shadow-sm border border-gray-100 landscape:p-2">
+              <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 landscape:mb-1">Cari Pelanggan</label>
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input type="text" placeholder="Ketik nama..." className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-bold text-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                <input type="text" placeholder="Ketik nama..." className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none font-bold text-xs" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
               </div>
               <div className="mt-3 space-y-2">
                 {pelangganList.map(p => (
@@ -213,16 +213,16 @@ function BayarHutangContent() {
             </div>
 
             {selectedPelanggan && (
-              <div className="space-y-3 md:space-y-4">
-                <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 md:p-6 rounded-2xl md:rounded-[2rem] text-white shadow-lg">
-                  <p className="text-blue-100 font-bold uppercase tracking-widest text-[10px]">Total Hutang</p>
-                  <h2 className="text-3xl font-black">Rp {selectedPelanggan.total_hutang_saat_ini.toLocaleString()}</h2>
-                  <p className="mt-2 text-xs opacity-80 font-bold italic">Pelanggan: {selectedPelanggan.nama}</p>
+              <div className="space-y-2 md:space-y-4">
+                <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-3 md:p-6 rounded-xl md:rounded-[2rem] text-white shadow-lg landscape:p-3">
+                  <p className="text-blue-100 font-bold uppercase tracking-widest text-[8px]">Total Hutang</p>
+                  <h2 className="text-2xl font-black tracking-tight landscape:text-lg">Rp {selectedPelanggan.total_hutang_saat_ini.toLocaleString()}</h2>
+                  <p className="mt-1 text-[10px] opacity-80 font-bold italic">Pelanggan: {selectedPelanggan.nama}</p>
                 </div>
 
-                <div className="bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl border border-gray-100 shadow-sm">
-                  <h3 className="font-black text-gray-800 text-[10px] md:text-xs uppercase mb-3 flex items-center gap-2"><HandCoins size={14} className="text-blue-600" /> Rincian Belanja</h3>
-                  <div className="space-y-3 max-h-[300px] md:max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="bg-white p-2 md:p-5 rounded-xl md:rounded-3xl border border-gray-100 shadow-sm landscape:p-2">
+                  <h3 className="font-black text-gray-800 text-[8px] md:text-xs uppercase mb-2 flex items-center gap-2"><HandCoins size={12} className="text-blue-600" /> Rincian Belanja</h3>
+                  <div className="space-y-2 max-h-[250px] md:max-h-[400px] overflow-y-auto pr-2 custom-scrollbar landscape:max-h-[150px]">
                     {groupedDebts.map(group => (
                       <div key={group.dateKey} className="space-y-2">
                         <p className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded w-fit uppercase">{group.dateLabel}</p>
@@ -253,7 +253,7 @@ function BayarHutangContent() {
           </div>
 
           <div className="landscape:sticky landscape:top-0">
-            <form onSubmit={handleSubmit} className="bg-white p-4 md:p-6 rounded-2xl md:rounded-[2.5rem] shadow-xl border border-gray-100 space-y-3 md:space-y-5 sticky top-6">
+            <form onSubmit={handleSubmit} className="bg-white p-3 md:p-6 rounded-xl md:rounded-[2.5rem] shadow-xl border border-gray-100 space-y-2 md:space-y-5 sticky top-6 landscape:p-3 landscape:space-y-3">
               {hasUnpricedDebts && (
                 <div className="p-4 bg-red-600 rounded-2xl text-white shadow-xl shadow-red-100 border-2 border-red-500">
                   <div className="flex items-center gap-2 font-black text-xs uppercase mb-3"><AlertTriangle size={18} className="animate-pulse"/> Pembayaran Terkunci</div>
@@ -284,17 +284,17 @@ function BayarHutangContent() {
               )}
 
               <div className={hasUnpricedDebts ? 'opacity-40 pointer-events-none' : ''}>
-                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">Tanggal Bayar</label>
-                <input type="date" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl font-bold text-sm outline-none" value={formData.tanggal_transaksi} onChange={(e) => setFormData({ ...formData, tanggal_transaksi: e.target.value })}/>
+                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase mb-1">Tanggal Bayar</label>
+                <input type="date" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none" value={formData.tanggal_transaksi} onChange={(e) => setFormData({ ...formData, tanggal_transaksi: e.target.value })}/>
               </div>
 
               <div className={hasUnpricedDebts ? 'opacity-40 pointer-events-none' : ''}>
-                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">Jumlah Bayar (Rp)</label>
-                <input type="number" placeholder="0" className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl font-black text-2xl text-green-600 outline-none" value={formData.jumlah_bayar} onChange={(e) => setFormData({ ...formData, jumlah_bayar: e.target.value })}/>
+                <label className="block text-[8px] md:text-[10px] font-black text-gray-400 uppercase mb-1">Jumlah Bayar (Rp)</label>
+                <input type="number" placeholder="0" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl font-black text-xl text-green-600 outline-none landscape:text-lg landscape:py-2" value={formData.jumlah_bayar} onChange={(e) => setFormData({ ...formData, jumlah_bayar: e.target.value })}/>
               </div>
-
-              <button type="submit" disabled={loading || !selectedPelanggan || hasUnpricedDebts} className={`w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-lg transition-all ${(!selectedPelanggan || hasUnpricedDebts) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white shadow-lg hover:bg-green-700 active:scale-95'}`}>
-                {loading ? <Loader2 className="animate-spin" /> : <Save size={20} />}
+ 
+              <button type="submit" disabled={loading || !selectedPelanggan || hasUnpricedDebts} className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-base transition-all landscape:py-2.5 landscape:text-sm ${(!selectedPelanggan || hasUnpricedDebts) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white shadow-lg hover:bg-green-700 active:scale-95'}`}>
+                {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                 {loading ? 'Memproses...' : 'Konfirmasi Bayar'}
               </button>
             </form>
