@@ -138,8 +138,8 @@ function BayarHutangContent() {
       .eq('pelanggan_id', selectedPelanggan.id)
       .eq('status_lunas', false);
 
-    const isStillInvalid = freshDebts?.some(d => 
-      (d.jumlah_hutang || 0) <= 0 || checkZeroInText(d.transaksi?.catatan_barang || "")
+    const isStillInvalid = (freshDebts as any)?.some((d: any) => 
+      (d.jumlah_hutang || 0) <= 0 || checkZeroInText(d.transaksi?.catatan_barang || (Array.isArray(d.transaksi) ? d.transaksi[0]?.catatan_barang : ""))
     );
 
     if (isStillInvalid) {
