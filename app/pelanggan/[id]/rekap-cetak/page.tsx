@@ -134,10 +134,9 @@ export default function CetakRekapHutangPage() {
       
       encoder.initialize()
         .alignCenter()
-        .bold(true)
-        .line('TOKO')
         .size(1, 1)
-        .line('3 PUTRA DIGITAL')
+        .bold(true)
+        .line('TOKO 3 PUTRA DIGITAL')
         .size(0, 0)
         .bold(true)
         .line('REKAP HUTANG')
@@ -273,8 +272,10 @@ export default function CetakRekapHutangPage() {
           
           {/* Header */}
           <div className="text-center mb-6 print:mb-4 landscape:mb-4">
-            <p className="text-[10px] font-black tracking-[0.4em] text-gray-400 mb-1 print:text-[8px] landscape:text-[9px]">TOKO</p>
-            <h2 className="text-3xl font-black text-blue-600 print:text-black tracking-tighter mb-1 print:text-xl landscape:text-2xl">3 PUTRA DIGITAL</h2>
+            <h2 className="text-3xl font-black text-blue-600 print:text-black tracking-tighter mb-1 print:text-xl landscape:text-2xl leading-tight">
+              <span className="block text-[10px] font-black tracking-[0.4em] text-gray-400 mb-1 print:text-[8px] landscape:text-[9px]">TOKO</span>
+              3 PUTRA DIGITAL
+            </h2>
             <p className="text-sm font-bold tracking-widest text-gray-400 print:text-[10px] landscape:text-xs uppercase">REKAP HUTANG</p>
           </div>
           

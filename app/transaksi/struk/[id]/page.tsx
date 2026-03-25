@@ -176,10 +176,9 @@ export default function StrukPage() {
 
       encoder.initialize()
         .alignCenter()
-        .bold(true)
-        .line('TOKO')
         .size(1, 1) // Double height & width
-        .line('3 PUTRA DIGITAL')
+        .bold(true)
+        .line('TOKO 3 PUTRA DIGITAL')
         .size(0, 0)
         .bold(false)
         .line('Solusi Hutang & Kasir')
@@ -354,8 +353,10 @@ export default function StrukPage() {
       >
         {/* Header */}
         <div className="text-center mb-10 border-b border-dashed border-gray-300 pb-8">
-          <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] mb-1">TOKO</p>
-          <h1 className="text-3xl font-black tracking-tighter text-gray-900 mb-1">3 PUTRA DIGITAL</h1>
+          <h1 className="text-3xl font-black tracking-tighter text-gray-900 mb-1 leading-tight">
+             <span className="block text-[10px] uppercase text-gray-400 tracking-[0.4em] mb-1 font-black">TOKO</span>
+             3 PUTRA DIGITAL
+          </h1>
           <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-4">Solusi Hutang & Kasir</p>
           
           <div className="flex flex-col gap-1 text-[11px] font-bold text-gray-500">
